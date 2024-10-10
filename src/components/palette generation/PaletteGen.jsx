@@ -8,7 +8,7 @@ const PaletteGen = () => {
 
     const generatePalette = () => {
         let newColors;
-        const baseColor = chroma.random().saturate(2).brighten(1); // Starting point for vibrant colors
+        const baseColor = chroma.random().saturate(2).brighten(1);
 
         switch (mode) {
             case 'analogous':
@@ -42,12 +42,25 @@ const PaletteGen = () => {
     };
 
     useEffect(() => {
-        generatePalette();
+        const handleKeyDown = (e) => {
+            if (e.code === 'Space') {
+                generatePalette();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [mode]);
+
+    useEffect(() => {
+        generatePalette(); // Generate palette initially
     }, []);
 
     return (
         <div>
-            <div className='m-5'>
+            <div className='m-5 flex'>
                 <select
                     className='p-3 border rounded-md'
                     value={mode}
@@ -57,18 +70,21 @@ const PaletteGen = () => {
                     <option value='analogous'>Analogous</option>
                     <option value='complementary'>Complementary</option>
                     <option value='triadic'>Triadic</option>
-                    <option value='vibrant'>Vibrant</option> {/* New option added */}
+                    <option value='vibrant'>Vibrant</option>
                 </select>
 
-                <button className='ml-5 p-3 bg-blue-600 text-white rounded cursor-pointer' onClick={generatePalette}>
+                {/* <button className='ml-5 p-3 bg-blue-600 text-white rounded cursor-pointer' onClick={generatePalette}>
                     Generate Palette
-                </button>
+                </button> */}
+
+                <p className='text-xl m-5 text-stone-500'>Hit Spacebar to Generate Colors Palettes</p>
+
             </div>
             <div className='flex justify-center items-center'>
                 {colors.map((color, index) => {
                     const luminance = chroma(color).luminance();
                     const textColor = luminance > 0.5 ? 'black' : 'white';
-                    const colorName = namer(color).ntc[0]?.name || 'Unknown'; // Use optional chaining to avoid errors
+                    const colorName = namer(color).ntc[0]?.name || 'Unknown';
                     return (
                         <div
                             key={index}
