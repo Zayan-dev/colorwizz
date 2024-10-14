@@ -7,9 +7,10 @@ const PaletteGen = () => {
     const [paletteColorsCount, setPaletteColorsCount] = useState(5)
     const [mode, setMode] = useState('monochromatic');
 
-    const addColor = () => {
+    const addColor = (e) => {
         if (paletteColorsCount < 10) {
-          const baseColor = chroma.random().saturate(2).brighten(1);
+            e.preventDefault(); 
+            const baseColor = chroma.random().saturate(2).brighten(1);
           let newColor;
 
           switch (mode) {
@@ -93,7 +94,8 @@ const PaletteGen = () => {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.code === 'Space') {
+            if (e.code === 'Space' ) {
+                e.preventDefault(); 
                 generatePalette();
             }
         };
@@ -113,7 +115,7 @@ const PaletteGen = () => {
         <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
           <div className="flex">
             <select
-              className="p-3 border border-gray rounded-md"
+              className="p-3 border border-gray rounded-md "
               value={mode}
               onChange={(e) => setMode(e.target.value)}
             >
