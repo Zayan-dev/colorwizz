@@ -67,32 +67,42 @@ const PaletteGen = () => {
 
                 break;
 
-            case 'complementary':
-                newColors = chroma.scale([baseColor, baseColor.set('hsl.h', '+180')]).colors(paletteColorsCount);
-                break;
+          case "complementary":
+            const darkColor = baseColor.darken(2); // Darken the base color
+            const brightColor = darkColor.set("hsl.h", "+180");
+            const mediumColors = chroma.scale([darkColor, brightColor.brighten(4)]).colors(4); // 3 medium-light to dark colors
+            newColors = [...mediumColors, brightColor.hex()];
+            console.log(darkColor, brightColor)
+            break;
 
-            case 'triadic':
-                newColors = chroma.scale([baseColor, baseColor.set('hsl.h', '+120'), baseColor.set('hsl.h', '-120')]).colors(paletteColorsCount);
-                break;
+          case "triadic":
+            newColors = chroma
+              .scale([
+                baseColor,
+                baseColor.set("hsl.h", "+120"),
+                baseColor.set("hsl.h", "-120"),
+              ])
+              .colors(paletteColorsCount);
+            break;
 
-            case 'vibrant':
-                newColors = [
-                    baseColor.hex(),
-                    baseColor.set('hsl.h', '+30').hex(),  // Complementary hue
-                    baseColor.set('hsl.h', '-30').hex(),  // Analogous hue
-                    baseColor.set('hsl.h', '+180').hex(), // Complementary color
-                    baseColor.set('hsl.h', '+60').hex()   // Additional analogous color
-                ];
-                newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
-                    baseColor
-                        .set("hsl.h", `${i * (360 / paletteColorsCount)}`)
-                        .hex()
-                );
-                break;
+          case "vibrant":
+            newColors = [
+              baseColor.hex(),
+              baseColor.set("hsl.h", "+30").hex(), // Complementary hue
+              baseColor.set("hsl.h", "-30").hex(), // Analogous hue
+              baseColor.set("hsl.h", "+180").hex(), // Complementary color
+              baseColor.set("hsl.h", "+60").hex(), // Additional analogous color
+            ];
+            newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
+              baseColor.set("hsl.h", `${i * (360 / paletteColorsCount)}`).hex()
+            );
+            break;
 
-            default:
-                newColors = chroma.scale([baseColor.darken(2), baseColor.brighten(3)]).colors(paletteColorsCount);
-                break;
+          default:
+            newColors = chroma
+              .scale([baseColor.darken(2), baseColor.brighten(2)])
+              .colors(paletteColorsCount);
+            break;
         }
 
         setColors(newColors);
