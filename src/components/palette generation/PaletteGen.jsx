@@ -52,10 +52,15 @@ const PaletteGen = () => {
         }
     }
 
-    const shuffleArray = (arr) => {
-        arr.sort(function (a, b) {
-            return Math.random() - 0.5;
-        });
+
+
+    // Shuffle function
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1)); // Random index
+            [array[i], array[j]] = [array[j], array[i]]; // Swap
+        }
+        return array;
     }
 
     const generatePalette = () => {
@@ -67,32 +72,18 @@ const PaletteGen = () => {
             case 'analogous':
                 const dark = baseColor.darken(2); // Darken the base color
                 const bright = dark.set("hsl.h", "+30");
-                const medium = chroma.scale([dark, bright.brighten(4)]).colors(4); // 3 medium-light to dark colors
+                const medium = chroma.scale([baseColor, dark, bright.brighten(4)]).colors(4); // 3 medium-light to dark colors
                 newColors = [...medium, bright.hex()];
-
-                // Shuffle function
-                function shuffleArray(array) {
-                    for (let i = array.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1)); // Random index
-                        [array[i], array[j]] = [array[j], array[i]]; // Swap
-                    }
-                    return array;
-                }
-
-                // Shuffle the newColors array
-                newColors = shuffleArray(newColors);
-
-                console.log(newColors);
+                // console.log(newColors);
                 // console.log(dark, bright);
                 break;
-
 
             case "complementary":
                 const darkColor = baseColor.darken(2); // Darken the base color
                 const brightColor = darkColor.set("hsl.h", "+180");
                 const mediumColors = chroma.scale([darkColor, brightColor.brighten(4)]).colors(4); // 3 medium-light to dark colors
                 newColors = [...mediumColors, brightColor.hex()];
-                console.log(darkColor, brightColor)
+                // console.log(darkColor, brightColor)
                 break;
 
             case "triadic":
@@ -125,6 +116,9 @@ const PaletteGen = () => {
                 break;
         }
 
+        // Shuffle the newColors array
+        if (mode != "monochromatic")
+            newColors = shuffleArray(newColors);
         setColors(newColors);
     };
 
