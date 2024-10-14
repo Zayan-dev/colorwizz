@@ -9,7 +9,45 @@ const PaletteGen = () => {
 
     const addColor = () => {
         if (paletteColorsCount < 10) {
-          setPaletteColorsCount((prevCount) => Math.min(prevCount + 1, 10));
+          const baseColor = chroma.random().saturate(2).brighten(1);
+          let newColor;
+
+          switch (mode) {
+            case "analogous":
+              newColor = chroma
+                .scale([
+                  baseColor,
+                  baseColor.set("hsl.h", "+30"),
+                  baseColor.set("hsl.h", "-30"),
+                ])
+                .colors(paletteColorsCount + 1)[paletteColorsCount]; // Get the next color
+              break;
+
+            case "complementary":
+              newColor = chroma
+                .scale([baseColor, baseColor.set("hsl.h", "+180")])
+                .colors(paletteColorsCount + 1)[paletteColorsCount];
+              break;
+
+            case "triadic":
+              newColor = chroma
+                .scale([
+                  baseColor,
+                  baseColor.set("hsl.h", "+120"),
+                  baseColor.set("hsl.h", "-120"),
+                ])
+                .colors(paletteColorsCount + 1)[paletteColorsCount];
+              break;
+
+            default:
+              newColor = chroma
+                .scale([baseColor.darken(2), baseColor.brighten(2)])
+                .colors(paletteColorsCount + 1)[paletteColorsCount]; // Fallback for other modes
+              break;
+          }
+
+          setColors((prevColors) => [...prevColors, newColor]); // Add the new color to the palette
+          setPaletteColorsCount((prevCount) => prevCount + 1); // Increment the color count
         }
     }
 
@@ -31,13 +69,13 @@ const PaletteGen = () => {
                 break;
 
             case 'vibrant':
-                // newColors = [
-                //     baseColor.hex(),
-                //     baseColor.set('hsl.h', '+30').hex(),  // Complementary hue
-                //     baseColor.set('hsl.h', '-30').hex(),  // Analogous hue
-                //     baseColor.set('hsl.h', '+180').hex(), // Complementary color
-                //     baseColor.set('hsl.h', '+60').hex()   // Additional analogous color
-                // ];
+                newColors = [
+                    baseColor.hex(),
+                    baseColor.set('hsl.h', '+30').hex(),  // Complementary hue
+                    baseColor.set('hsl.h', '-30').hex(),  // Analogous hue
+                    baseColor.set('hsl.h', '+180').hex(), // Complementary color
+                    baseColor.set('hsl.h', '+60').hex()   // Additional analogous color
+                ];
                 newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
                   baseColor
                     .set("hsl.h", `${i * (360 / paletteColorsCount)}`)
@@ -64,11 +102,11 @@ const PaletteGen = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [mode, paletteColorsCount]);
+    }, [mode]);
 
     useEffect(() => {
         generatePalette(); // Generate palette initially
-    }, [paletteColorsCount]);
+    }, [mode]);
 
     return (
       <div>
@@ -103,7 +141,7 @@ const PaletteGen = () => {
           </div>
         </div>
 
-        <div className={`flex flex-col md:flex-row h-screen w-screen pt-[4.5rem]`}>
+        <div className={`flex flex-col md:flex-row h-screen w-full pt-[4.5rem]`}>
           {colors.map((color, index) => {
             const luminance = chroma(color).luminance();
             const textColor = luminance > 0.5 ? "black" : "white";
@@ -111,8 +149,14 @@ const PaletteGen = () => {
             return (
               <div
                 key={index}
-                className={`flex flex-col items-center justify-center ${"w-1/" + colors.length }`}
-                style={{ backgroundColor: color }}
+                className={`flex flex-col items-center justify-center`}
+                style={{
+                  backgroundColor: color,
+                  width:
+                    window.innerWidth > 760
+                      ? `${100 / colors.length}%`
+                      : "100%",
+                }}
               >
                 <p
                   className="text-center font-semibold uppercase text-4xl"
