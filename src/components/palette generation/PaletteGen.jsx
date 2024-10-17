@@ -70,12 +70,11 @@ const PaletteGen = () => {
 
         switch (mode) {
             case 'analogous':
-                const dark = baseColor.darken(2); // Darken the base color
-                const bright = dark.set("hsl.h", "+30");
-                const medium = chroma.scale([baseColor, dark, bright.brighten(4)]).colors(4); // 3 medium-light to dark colors
+                const dark = baseColor; // Darken the base color
+                const degree = paletteColorsCount * 30;
+                const bright = dark.set("hsl.h", `+${degree}`);
+                const medium = chroma.scale([dark, bright.brighten(4)]).colors(4); // 3 medium-light to dark colors
                 newColors = [...medium, bright.hex()];
-                // console.log(newColors);
-                // console.log(dark, bright);
                 break;
 
             case "complementary":
@@ -87,13 +86,18 @@ const PaletteGen = () => {
                 break;
 
             case "triadic":
-                newColors = chroma
-                    .scale([
-                        baseColor,
-                        baseColor.set("hsl.h", "+120"),
-                        baseColor.set("hsl.h", "-120"),
-                    ])
-                    .colors(paletteColorsCount);
+                const darkCol = baseColor;
+                const color1 = darkCol.set('hsl.h', "+120");
+                const color2 = darkCol.set('hsl.h', "-120");
+                const mediumCol = chroma.scale([darkCol, color1.brighten(4), color2.brighten(4)]).colors(3); // 3 medium-light to dark colors
+                newColors = [...mediumCol, color1.hex(), color2.hex()];
+                // newColors = chroma
+                //     .scale([
+                //         baseColor,
+                //         baseColor.set("hsl.h", "+120"),
+                //         baseColor.set("hsl.h", "-120"),
+                //     ])
+                //     .colors(paletteColorsCount);
                 break;
 
             case "vibrant":
