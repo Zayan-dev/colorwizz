@@ -11,6 +11,9 @@ const PaletteGen = () => {
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [pickedColor, setPickedColor] = useState('#BDAFD5'); // Initial color picker value
 
+    // Add lock status for each color
+    const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
+
     const addColor = (e) => {
         if (paletteColorsCount < 10) {
             e.preventDefault();
@@ -58,7 +61,7 @@ const PaletteGen = () => {
     }
 
     const generatePalette = () => {
-        let newColors;
+        let newColors = [...colors]; // Create a copy of the current colors
         const baseColor = chroma.random().saturate(2);
 
         switch (mode) {
@@ -98,8 +101,12 @@ const PaletteGen = () => {
                 break;
         }
 
-        // Shuffle the newColors array
+        // Replace only unlocked colors
+        newColors = newColors.map((newColor, index) => lockedColors.includes(index) ? colors[index] : newColor);
+
+        // Shuffle the newColors array if mode isn't monochromatic
         if (mode !== "monochromatic") newColors = shuffleArray(newColors);
+
         setColors(newColors);
     };
 
@@ -115,7 +122,7 @@ const PaletteGen = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [mode]);
+    }, [mode, lockedColors]);
 
     useEffect(() => {
         generatePalette(); // Generate palette initially
@@ -131,15 +138,26 @@ const PaletteGen = () => {
 
     const handleDrop = (index) => {
         const updatedColors = [...colors];
+        const updatedLockedColors = [...lockedColors];
+
         const [movedColor] = updatedColors.splice(draggedIndex, 1); // Remove the dragged color
         updatedColors.splice(index, 0, movedColor); // Insert it at the drop location
+
+        // Move the lock status along with the color
+        const isLocked = updatedLockedColors.includes(draggedIndex);
+        if (isLocked) {
+            updatedLockedColors.splice(draggedIndex, 1); // Remove the lock from the dragged index
+            updatedLockedColors.splice(index, 0, index); // Add the lock to the new index
+        }
+
         setColors(updatedColors);
+        setLockedColors(updatedLockedColors);
         setDraggedIndex(null); // Clear the dragged index
     };
 
     const handleCopy = (e) => {
-        navigator.clipboard.writeText(e.target.innerHTML)
-        toast("Color copied to clipboard!")
+        navigator.clipboard.writeText(e.target.innerHTML);
+        toast("Color copied to clipboard!");
     };
 
     const handleColorChange = (e, index) => {
@@ -149,6 +167,14 @@ const PaletteGen = () => {
             updatedColors[index] = newColor; // Update the specific color in the array
             return updatedColors;
         });
+    };
+
+    const toggleLockColor = (index) => {
+        setLockedColors((prevLocked) => 
+            prevLocked.includes(index) 
+                ? prevLocked.filter((i) => i !== index)  // Unlock the color
+                : [...prevLocked, index]                 // Lock the color
+        );
     };
 
     return (
@@ -177,6 +203,8 @@ const PaletteGen = () => {
                     const luminance = chroma(color).luminance();
                     const textColor = luminance > 0.5 ? "black" : "white";
                     const colorName = namer(color).ntc[0]?.name || "Unknown";
+                    const isLocked = lockedColors.includes(index);
+
                     return (
                         <div
                             key={index}
@@ -194,24 +222,39 @@ const PaletteGen = () => {
                             onDragOver={handleDragOver}
                             onDrop={() => handleDrop(index)}
                         >
-                            {/* <input
-                                type='color'
-                                value={color}
-                                onChange={(e) => handleColorChange(e, index)} 
-                            /> */}
                             <p
                                 onClick={handleCopy}
-                                className="text-center font-semibold uppercase text-4xl cursor-copy"
+                                className="text-center uppercase"
                                 style={{ color: textColor }}
                             >
                                 {color}
                             </p>
-                            <ToastContainer />
-                            <p style={{ color: textColor }}>{colorName}</p>
+
+                            <p
+                                className="text-center uppercase"
+                                style={{ color: textColor }}
+                            >
+                                {colorName}
+                            </p>
+
+                            {/* Color Picker */}
+                            <input
+                                type="color"
+                                value={color}
+                                onChange={(e) => handleColorChange(e, index)}
+                                className="mt-4 mb-2"
+                            />
+
+                            {/* Lock/Unlock button */}
+                            <button onClick={() => toggleLockColor(index)}>
+                                {isLocked ? "🔒" : "🔓"}
+                            </button>
                         </div>
                     );
                 })}
             </div>
+
+            <ToastContainer />
         </div>
     );
 };
