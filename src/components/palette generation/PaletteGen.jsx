@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import chroma from 'chroma-js';
 import namer from 'color-namer';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const PaletteGen = () => {
     const [colors, setColors] = useState([]);
-    const [paletteColorsCount, setPaletteColorsCount] = useState(5)
+    const [paletteColorsCount, setPaletteColorsCount] = useState(5);
     const [mode, setMode] = useState('monochromatic');
+    const [draggedIndex, setDraggedIndex] = useState(null);
 
     const addColor = (e) => {
         if (paletteColorsCount < 10) {
@@ -16,12 +20,8 @@ const PaletteGen = () => {
             switch (mode) {
                 case "analogous":
                     newColor = chroma
-                        .scale([
-                            baseColor,
-                            baseColor.set("hsl.h", "+30"),
-                            baseColor.set("hsl.h", "-30"),
-                        ])
-                        .colors(paletteColorsCount + 1)[paletteColorsCount]; // Get the next color
+                        .scale([baseColor, baseColor.set("hsl.h", "+30"), baseColor.set("hsl.h", "-30")])
+                        .colors(paletteColorsCount + 1)[paletteColorsCount];
                     break;
 
                 case "complementary":
@@ -32,11 +32,7 @@ const PaletteGen = () => {
 
                 case "triadic":
                     newColor = chroma
-                        .scale([
-                            baseColor,
-                            baseColor.set("hsl.h", "+120"),
-                            baseColor.set("hsl.h", "-120"),
-                        ])
+                        .scale([baseColor, baseColor.set("hsl.h", "+120"), baseColor.set("hsl.h", "-120")])
                         .colors(paletteColorsCount + 1)[paletteColorsCount];
                     break;
 
@@ -50,9 +46,7 @@ const PaletteGen = () => {
             setColors((prevColors) => [...prevColors, newColor]); // Add the new color to the palette
             setPaletteColorsCount((prevCount) => prevCount + 1); // Increment the color count
         }
-    }
-
-
+    };
 
     // Shuffle function
     function shuffleArray(array) {
@@ -64,50 +58,34 @@ const PaletteGen = () => {
     }
 
     const generatePalette = () => {
-        let newColors, newColors2;
+        let newColors;
         const baseColor = chroma.random().saturate(2);
-        // const baseColor2 = chroma.random().saturate(2).brighten(1);
 
         switch (mode) {
             case 'analogous':
-                const dark = baseColor; // Darken the base color
+                const dark = baseColor;
                 const degree = paletteColorsCount * 30;
                 const bright = dark.set("hsl.h", `+${degree}`);
-                const medium = chroma.scale([dark, bright.brighten(4)]).colors(4); // 3 medium-light to dark colors
+                const medium = chroma.scale([dark, bright.brighten(4)]).colors(4);
                 newColors = [...medium, bright.hex()];
                 break;
 
             case "complementary":
-                const darkColor = baseColor.darken(2); // Darken the base color
+                const darkColor = baseColor.darken(2);
                 const brightColor = darkColor.set("hsl.h", "+180");
-                const mediumColors = chroma.scale([darkColor, brightColor.brighten(4)]).colors(4); // 3 medium-light to dark colors
+                const mediumColors = chroma.scale([darkColor, brightColor.brighten(4)]).colors(4);
                 newColors = [...mediumColors, brightColor.hex()];
-                // console.log(darkColor, brightColor)
                 break;
 
             case "triadic":
                 const darkCol = baseColor;
                 const color1 = darkCol.set('hsl.h', "+120");
                 const color2 = darkCol.set('hsl.h', "-120");
-                const mediumCol = chroma.scale([darkCol, color1.brighten(4), color2.brighten(4)]).colors(3); // 3 medium-light to dark colors
+                const mediumCol = chroma.scale([darkCol, color1.brighten(4), color2.brighten(4)]).colors(3);
                 newColors = [...mediumCol, color1.hex(), color2.hex()];
-                // newColors = chroma
-                //     .scale([
-                //         baseColor,
-                //         baseColor.set("hsl.h", "+120"),
-                //         baseColor.set("hsl.h", "-120"),
-                //     ])
-                //     .colors(paletteColorsCount);
                 break;
 
             case "vibrant":
-                newColors = [
-                    baseColor.hex(),
-                    baseColor.set("hsl.h", "+30").hex(), // Complementary hue
-                    baseColor.set("hsl.h", "-30").hex(), // Analogous hue
-                    baseColor.set("hsl.h", "+180").hex(), // Complementary color
-                    baseColor.set("hsl.h", "+60").hex(), // Additional analogous color
-                ];
                 newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
                     baseColor.set("hsl.h", `${i * (360 / paletteColorsCount)}`).hex()
                 );
@@ -121,8 +99,7 @@ const PaletteGen = () => {
         }
 
         // Shuffle the newColors array
-        if (mode != "monochromatic")
-            newColors = shuffleArray(newColors);
+        if (mode !== "monochromatic") newColors = shuffleArray(newColors);
         setColors(newColors);
     };
 
@@ -144,12 +121,34 @@ const PaletteGen = () => {
         generatePalette(); // Generate palette initially
     }, [mode]);
 
+    const handleDragStart = (index) => {
+        // console.log(index)
+        setDraggedIndex(index);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (index) => {
+        const updatedColors = [...colors];
+        const [movedColor] = updatedColors.splice(draggedIndex, 1); // Remove the dragged color
+        updatedColors.splice(index, 0, movedColor); // Insert it at the drop location
+        setColors(updatedColors);
+        setDraggedIndex(null); // Clear the dragged index
+    };
+
+    const handleCopy = (e) => {
+        console.log(e.target.innerHTML)
+        navigator.clipboard.writeText(e.target.innerHTML)
+        toast("Color copied to clipboard!")
+    }
     return (
         <div>
             <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
                 <div className="flex">
                     <select
-                        className="p-3 border border-gray rounded-md "
+                        className="p-3 border border-gray rounded-md"
                         value={mode}
                         onChange={(e) => setMode(e.target.value)}
                     >
@@ -159,21 +158,9 @@ const PaletteGen = () => {
                         <option value="triadic">Triadic</option>
                         <option value="vibrant">Vibrant</option>
                     </select>
-
-                    {/* <button className='ml-5 p-3 bg-blue-600 text-white rounded cursor-pointer' onClick={generatePalette}>
-                    Generate Palette
-                </button> */}
-
                     <p className="text-base m-5 text-stone-500">
                         Hit spacebar to generate colors palette
                     </p>
-                </div>
-                <div className="flex justify-between items-center flex-row-reverse">
-                    {/* {paletteColorsCount < 10 && (
-                <button className='p-2 bg-gray text-black rounded cursor-pointer' onClick={addColor}>
-                    Add Color
-                </button>
-            )} */}
                 </div>
             </div>
 
@@ -192,14 +179,21 @@ const PaletteGen = () => {
                                     window.innerWidth > 760
                                         ? `${100 / colors.length}%`
                                         : "100%",
+                                cursor: 'move', // Change cursor to indicate draggable item
                             }}
+                            draggable
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={handleDragOver}
+                            onDrop={() => handleDrop(index)}
                         >
                             <p
-                                className="text-center font-semibold uppercase text-4xl"
+                                onClick={handleCopy}
+                                className="text-center font-semibold uppercase text-4xl cursor-copy"
                                 style={{ color: textColor }}
                             >
                                 {color}
                             </p>
+                            <ToastContainer />
                             <p style={{ color: textColor }}>{colorName}</p>
                         </div>
                     );
