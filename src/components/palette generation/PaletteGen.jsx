@@ -4,12 +4,12 @@ import namer from 'color-namer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const PaletteGen = () => {
     const [colors, setColors] = useState([]);
     const [paletteColorsCount, setPaletteColorsCount] = useState(5);
     const [mode, setMode] = useState('monochromatic');
     const [draggedIndex, setDraggedIndex] = useState(null);
+    const [pickedColor, setPickedColor] = useState('#BDAFD5'); // Initial color picker value
 
     const addColor = (e) => {
         if (paletteColorsCount < 10) {
@@ -122,7 +122,6 @@ const PaletteGen = () => {
     }, [mode]);
 
     const handleDragStart = (index) => {
-        // console.log(index)
         setDraggedIndex(index);
     };
 
@@ -139,10 +138,19 @@ const PaletteGen = () => {
     };
 
     const handleCopy = (e) => {
-        console.log(e.target.innerHTML)
         navigator.clipboard.writeText(e.target.innerHTML)
         toast("Color copied to clipboard!")
-    }
+    };
+
+    const handleColorChange = (e, index) => {
+        const newColor = e.target.value; // Get the new color from the color picker
+        setColors((prevColors) => {
+            const updatedColors = [...prevColors];
+            updatedColors[index] = newColor; // Update the specific color in the array
+            return updatedColors;
+        });
+    };
+
     return (
         <div>
             <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
@@ -186,6 +194,11 @@ const PaletteGen = () => {
                             onDragOver={handleDragOver}
                             onDrop={() => handleDrop(index)}
                         >
+                            {/* <input
+                                type='color'
+                                value={color}
+                                onChange={(e) => handleColorChange(e, index)} 
+                            /> */}
                             <p
                                 onClick={handleCopy}
                                 className="text-center font-semibold uppercase text-4xl cursor-copy"
