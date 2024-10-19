@@ -3,6 +3,10 @@ import chroma from 'chroma-js';
 import namer from 'color-namer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { complementaryColors } from '../paletteTypes/complementary';
+import { analogousColors } from '../paletteTypes/analogous';
+import { monochromaticColors } from '../paletteTypes/monochromatic';
+import { triadicColors } from '../paletteTypes/triadic';
 
 const PaletteGen = () => {
     const [colors, setColors] = useState([]);
@@ -13,43 +17,6 @@ const PaletteGen = () => {
 
     // Add lock status for each color
     const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
-
-    const addColor = (e) => {
-        if (paletteColorsCount < 10) {
-            e.preventDefault();
-            const baseColor = chroma.random().saturate(2).brighten(1);
-            let newColor;
-
-            switch (mode) {
-                case "analogous":
-                    newColor = chroma
-                        .scale([baseColor, baseColor.set("hsl.h", "+30"), baseColor.set("hsl.h", "-30")])
-                        .colors(paletteColorsCount + 1)[paletteColorsCount];
-                    break;
-
-                case "complementary":
-                    newColor = chroma
-                        .scale([baseColor, baseColor.set("hsl.h", "+180")])
-                        .colors(paletteColorsCount + 1)[paletteColorsCount];
-                    break;
-
-                case "triadic":
-                    newColor = chroma
-                        .scale([baseColor, baseColor.set("hsl.h", "+120"), baseColor.set("hsl.h", "-120")])
-                        .colors(paletteColorsCount + 1)[paletteColorsCount];
-                    break;
-
-                default:
-                    newColor = chroma
-                        .scale([baseColor.darken(2), baseColor.brighten(2)])
-                        .colors(paletteColorsCount + 1)[paletteColorsCount]; // Fallback for other modes
-                    break;
-            }
-
-            setColors((prevColors) => [...prevColors, newColor]); // Add the new color to the palette
-            setPaletteColorsCount((prevCount) => prevCount + 1); // Increment the color count
-        }
-    };
 
     // Shuffle function
     function shuffleArray(array) {
@@ -65,40 +32,34 @@ const PaletteGen = () => {
         const baseColor = chroma.random().saturate(2);
 
         switch (mode) {
-            case 'analogous':
-                const dark = baseColor;
-                const degree = paletteColorsCount * 30;
-                const bright = dark.set("hsl.h", `+${degree}`);
-                const medium = chroma.scale([dark, bright.brighten(4)]).colors(4);
-                newColors = [...medium, bright.hex()];
-                break;
+          case "analogous":
+            newColors = analogousColors(paletteColorsCount);
+            break;
 
-            case "complementary":
-                const darkColor = baseColor.darken(2);
-                const brightColor = darkColor.set("hsl.h", "+180");
-                const mediumColors = chroma.scale([darkColor, brightColor.brighten(4)]).colors(4);
-                newColors = [...mediumColors, brightColor.hex()];
-                break;
+          case "complementary":
+            newColors = complementaryColors(paletteColorsCount);
+            break;
 
-            case "triadic":
-                const darkCol = baseColor;
-                const color1 = darkCol.set('hsl.h', "+120");
-                const color2 = darkCol.set('hsl.h', "-120");
-                const mediumCol = chroma.scale([darkCol, color1.brighten(4), color2.brighten(4)]).colors(3);
-                newColors = [...mediumCol, color1.hex(), color2.hex()];
-                break;
+          case "triadic":
+            newColors = triadicColors(paletteColorsCount);
+            break;
 
-            case "vibrant":
-                newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
-                    baseColor.set("hsl.h", `${i * (360 / paletteColorsCount)}`).hex()
-                );
-                break;
+          case "vibrant":
+            // newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
+            //   baseColor.set("hsl.h", `${i * (360 / paletteColorsCount)}`).hex()
+            // );
+            const baseColor = chroma.random().saturate(2);
+            const darkColor = baseColor.darken(2);
+            const brightColor = darkColor.set("hsl.h", "+180");
+            const mediumColors = chroma
+              .scale([darkColor, brightColor.brighten(4)])
+              .colors(4);
+            newColors = [...mediumColors, brightColor.hex()];
+            break;
 
-            default:
-                newColors = chroma
-                    .scale([baseColor.darken(2), baseColor.brighten(2)])
-                    .colors(paletteColorsCount);
-                break;
+          default:
+            newColors = monochromaticColors(paletteColorsCount);
+            break;
         }
 
         // Replace only unlocked colors
