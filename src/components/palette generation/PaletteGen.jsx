@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import chroma from 'chroma-js';
 import namer from 'color-namer';
 import { ToastContainer, toast } from 'react-toastify';
@@ -7,9 +7,12 @@ import { complementaryColors } from '../paletteTypes/complementary';
 import { analogousColors } from '../paletteTypes/analogous';
 import { monochromaticColors } from '../paletteTypes/monochromatic';
 import { triadicColors } from '../paletteTypes/triadic';
+import { handleAddColor } from '../options/addColor';
+import { deleteColor } from "../options/deleteColor";
 
 const PaletteGen = () => {
     const [colors, setColors] = useState([]);
+    const [hoverIndex, setHoverIndex] = useState(null);
     const [paletteColorsCount, setPaletteColorsCount] = useState(5);
     const [mode, setMode] = useState('monochromatic');
     const [draggedIndex, setDraggedIndex] = useState(null);
@@ -18,6 +21,11 @@ const PaletteGen = () => {
     // Add lock status for each color
     const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
 
+    useEffect(() => {
+      // Update paletteColorsCount whenever colors state changes
+      setPaletteColorsCount(colors.length);
+    }, [colors]);
+    
     // Shuffle function
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -83,7 +91,7 @@ const PaletteGen = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [mode, lockedColors]);
+    }, [mode, lockedColors, paletteColorsCount]);
 
     useEffect(() => {
         generatePalette(); // Generate palette initially
@@ -139,84 +147,121 @@ const PaletteGen = () => {
     };
 
     return (
-        <div>
-            <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
-                <div className="flex">
-                    <select
-                        className="p-3 border border-gray rounded-md"
-                        value={mode}
-                        onChange={(e) => setMode(e.target.value)}
-                    >
-                        <option value="monochromatic">Monochromatic</option>
-                        <option value="analogous">Analogous</option>
-                        <option value="complementary">Complementary</option>
-                        <option value="triadic">Triadic</option>
-                        <option value="vibrant">Vibrant</option>
-                    </select>
-                    <p className="text-base m-5 text-stone-500">
-                        Hit spacebar to generate colors palette
-                    </p>
-                </div>
-            </div>
-
-            <div className={`flex flex-col md:flex-row h-screen w-full pt-[4.5rem]`}>
-                {colors.map((color, index) => {
-                    const luminance = chroma(color).luminance();
-                    const textColor = luminance > 0.5 ? "black" : "white";
-                    const colorName = namer(color).ntc[0]?.name || "Unknown";
-                    const isLocked = lockedColors.includes(index);
-
-                    return (
-                        <div
-                            key={index}
-                            className={`flex flex-col items-center justify-center`}
-                            style={{
-                                backgroundColor: color,
-                                width:
-                                    window.innerWidth > 760
-                                        ? `${100 / colors.length}%`
-                                        : "100%",
-                                cursor: 'move', // Change cursor to indicate draggable item
-                            }}
-                            draggable
-                            onDragStart={() => handleDragStart(index)}
-                            onDragOver={handleDragOver}
-                            onDrop={() => handleDrop(index)}
-                        >
-                            <p
-                                onClick={handleCopy}
-                                className="text-center uppercase"
-                                style={{ color: textColor }}
-                            >
-                                {color}
-                            </p>
-
-                            <p
-                                className="text-center uppercase"
-                                style={{ color: textColor }}
-                            >
-                                {colorName}
-                            </p>
-
-                            {/* Color Picker */}
-                            <input
-                                type="color"
-                                value={color}
-                                onChange={(e) => handleColorChange(e, index)}
-                                className="mt-4 mb-2"
-                            />
-
-                            {/* Lock/Unlock button */}
-                            <button onClick={() => toggleLockColor(index)}>
-                                {isLocked ? "🔒" : "🔓"}
-                            </button>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <ToastContainer />
+      <div>
+        <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
+          <div className="flex">
+            <select
+              className="p-3 border border-gray rounded-md"
+              value={mode}
+              onChange={(e) => setMode(e.target.value)}
+            >
+              <option value="monochromatic">Monochromatic</option>
+              <option value="analogous">Analogous</option>
+              <option value="complementary">Complementary</option>
+              <option value="triadic">Triadic</option>
+              <option value="vibrant">Vibrant</option>
+            </select>
+            <p className="text-base m-5 text-stone-500">
+              Hit spacebar to generate colors palette
+            </p>
+          </div>
         </div>
+
+        <div className="flex flex-col md:flex-row h-screen w-full pt-[4.5rem]">
+          {colors.map((color, index) => {
+            const luminance = chroma(color).luminance();
+            const textColor = luminance > 0.5 ? "black" : "white";
+            const colorName = namer(color).ntc[0]?.name || "Unknown";
+            const isLocked = lockedColors.includes(index);
+
+            return (
+              <div
+                key={index}
+                className="relative flex flex-col items-center justify-center transition-all duration-500"
+                style={{
+                  backgroundColor: color,
+                  width:
+                    window.innerWidth > 760
+                      ? `${100 / colors.length}%`
+                      : "100%",
+                  cursor: "move",
+                }}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={handleDragOver}
+                onDrop={() => handleDrop(index)}
+              >
+                <p
+                  onClick={handleCopy}
+                  className="text-center uppercase cursor-pointer"
+                  style={{ color: textColor }}
+                >
+                  {color}
+                </p>
+
+                <p
+                  className="text-center uppercase"
+                  style={{ color: textColor }}
+                >
+                  {colorName}
+                </p>
+
+                {/* Color Picker */}
+                <input
+                  type="color"
+                  value={color}
+                  onChange={(e) => handleColorChange(e, index)}
+                  className="mt-4 mb-2"
+                />
+
+                {/* Lock/Unlock button */}
+                <button onClick={() => toggleLockColor(index)}>
+                  {isLocked ? "🔒" : "🔓"}
+                </button>
+                {paletteColorsCount > 2 && (
+                  <button
+                    onClick={() => setColors(deleteColor(color, colors))}
+                    className="pt-4"
+                    style={{ color: textColor }}
+                  >
+                    Delete
+                  </button>
+                )}
+
+                {/* Hover detection between color divs */}
+                {index < colors.length - 1 && paletteColorsCount < 10 && (
+                  <div
+                    className={`absolute inset-y-0 -right-10 flex items-center justify-center w-20 z-10 transition-all duration-300 transform ease-in-out 
+          ${hoverIndex === index ? "opacity-100" : "opacity-0"}`}
+                    onMouseEnter={() => setHoverIndex(index)}
+                    onMouseLeave={() => setHoverIndex(null)}
+                  >
+                    {hoverIndex === index && (
+                      <button
+                        onClick={() => {
+                          const updatedColors = handleAddColor(
+                            color,
+                            colors[index + 1],
+                            index,
+                            colors
+                          );
+                          setColors(updatedColors);
+                        }}
+                        className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-20"
+                        style={{ top: "50%" }}
+                      >
+                        <p className="text-4xl font-bold pb-2">+</p>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <ToastContainer />
+      </div>
     );
 };
 
