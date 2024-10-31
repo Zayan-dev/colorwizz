@@ -112,9 +112,9 @@ const PaletteGen = () => {
     return (
         <div>
             <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
-                <div className="flex">
+                <div className="flex items-center justify-center">
                     <select
-                        className="p-3 border border-gray rounded-md"
+                        className="px-3 h-10 border border-gray rounded-md"
                         value={mode}
                         onChange={(e) => setMode(e.target.value)}
                     >
