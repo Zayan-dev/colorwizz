@@ -189,12 +189,13 @@ const PaletteGen = () => {
                             />
 
                             {/* Shades option */}
-                            <button onClick={() => handleShades(index, color)} className='text-3xl'>
+                            <button onClick={() => handleShades(index, color)} className='text-3xl' style={{ color: textColor }}>
                                 <BiSolidColor />
                             </button>
 
                             {/* Lock/Unlock button */}
                             <button className="mt-3 text-2xl"
+                                style={{ color: textColor }}
                                 onClick={() =>
                                     toggleLockColor(index, lockedColors, setLockedColors)
                                 }
