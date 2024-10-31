@@ -15,8 +15,11 @@ const PaletteGen = () => {
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [pickedColor, setPickedColor] = useState('#BDAFD5'); // Initial color picker value
 
-    // Add lock status for each color
     const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
+
+    // New state for shades panel
+    const [shades, setShades] = useState([]);
+    const [showShades, setShowShades] = useState(false); // Show/hide shades panel
 
     // Shuffle function
     function shuffleArray(array) {
@@ -47,9 +50,6 @@ const PaletteGen = () => {
                 break;
 
             case "vibrant":
-                // newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
-                //   baseColor.set("hsl.h", `${i * (360 / paletteColorsCount)}`).hex()
-                // );
                 const baseColor = chroma.random().saturate(2);
                 const darkColor = baseColor.darken(2);
                 const brightColor = darkColor.set("hsl.h", "+180");
@@ -64,10 +64,9 @@ const PaletteGen = () => {
                 break;
         }
 
-        // Replace only unlocked colors
-        newColors = newColors.map((newColor, index) => lockedColors.includes(index) ? colors[index] : newColor);
-        // Shuffle the newColors array if mode isn't monochromatic
-        // if (mode !== "monochromatic") newColors = shuffleArray(newColors);
+        newColors = newColors.map((newColor, index) =>
+            lockedColors.includes(index) ? colors[index] : newColor
+        );
 
         setColors(newColors);
     };
@@ -99,43 +98,11 @@ const PaletteGen = () => {
     const handleDrop = (index) => {
         const updatedColors = [...colors];
         let updatedLockedColors = [...lockedColors];
-        if (draggedIndex < index) {
-            if (updatedLockedColors.includes(draggedIndex)) {
-                // setLockedColors((lockedcolor) => lockedcolor.filter(item => item !== draggedIndex))
-                updatedLockedColors = updatedLockedColors.filter(item => item !== draggedIndex)
-            }
-            for (let i = draggedIndex; i <= index; i++) {
-                if (updatedLockedColors.includes(i)) {
-                    const elementIndex = updatedLockedColors.indexOf(i)
-                    updatedLockedColors[elementIndex] = updatedLockedColors[elementIndex] - 1;
-                }
-            }
-            if (lockedColors.includes(draggedIndex)) {
-                updatedLockedColors.push(index)
-            }
-        }
-        console.log(draggedIndex, index)
-        if (draggedIndex > index) {
-            if (updatedLockedColors.includes(draggedIndex)) {
-                updatedLockedColors = updatedLockedColors.filter(item => item !== draggedIndex)
-            }
-            for (let i = draggedIndex; i >= index; i--) {
-                if (updatedLockedColors.includes(i)) {
-                    const elementIndex = updatedLockedColors.indexOf(i)
-                    updatedLockedColors[elementIndex] = updatedLockedColors[elementIndex] + 1;
-                }
-            }
-            if (lockedColors.includes(draggedIndex)) {
-                updatedLockedColors.push(index)
-            }
-        }
-        console.log("Old locked: ", lockedColors);
-        console.log("New Locked: ", updatedLockedColors);
-        const [movedColor] = updatedColors.splice(draggedIndex, 1); // Remove the dragged color
-        updatedColors.splice(index, 0, movedColor); // Insert it at the drop location
+        const [movedColor] = updatedColors.splice(draggedIndex, 1);
+        updatedColors.splice(index, 0, movedColor);
         setColors(updatedColors);
         setLockedColors(updatedLockedColors);
-        setDraggedIndex(null); // Clear the dragged index
+        setDraggedIndex(null);
     };
 
     const handleCopy = (e) => {
@@ -151,36 +118,36 @@ const PaletteGen = () => {
             updatedColors[index] = newColor; // Update the specific color in the array
             return updatedColors;
         });
-        // const colorName = namer(newColor).ntc[0]?.name || "Unknown";
-        // setName(colorName);
     };
 
     const handleColorPickEnd = (e, color) => {
         const colorName = namer(color).ntc[0]?.name || "Unknown";
         setName(colorName);
-     
     }
+
     const toggleLockColor = (index) => {
         setLockedColors((prevLocked) =>
             prevLocked.includes(index)
                 ? prevLocked.filter((i) => i !== index)  // Unlock the color
                 : [...prevLocked, index]                 // Lock the color
         );
-
     };
-    const [colorName, setColorName] = useState([]);
-    const handleColorNames = () => {
-        let namesArray = [];
-        for (let i = 0; i < colors.length; i++) {
-            namesArray[i] = namer(colors[i]).ntc[0]?.name || "Unknown";
-        }
-        return namesArray;
+
+    const [index, setIndex] = useState(0);
+    const handleShades = (index, color) => {
+        const shadesArray = chroma.scale(['white', color, 'black']).mode('rgb').colors(25);
+        setShades(shadesArray);
+        setShowShades(true);
+        setIndex(index);
+    };
+    // console.log(index)
+
+    const setColorShade = (e, shade) => {
+        e.preventDefault();
+        const colorArray = [...colors];
+        colorArray[index] = shade
+        setColors(colorArray);
     }
-
-    // useEffect(() => {
-    //     setColorName(handleColorNames())
-    // }, [colors])
-
     return (
         <div>
             <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
@@ -206,7 +173,6 @@ const PaletteGen = () => {
                 {colors.map((color, index) => {
                     const luminance = chroma(color).luminance();
                     const textColor = luminance > 0.5 ? "black" : "white";
-                    // const colorName = namer(color).ntc[0]?.name || "Unknown";
                     const isLocked = lockedColors.includes(index);
 
                     return (
@@ -219,39 +185,29 @@ const PaletteGen = () => {
                                     window.innerWidth > 760
                                         ? `${100 / colors.length}%`
                                         : "100%",
-                                cursor: 'move', // Change cursor to indicate draggable item
+                                cursor: 'move',
                             }}
                             draggable
                             onDragStart={() => handleDragStart(index)}
                             onDragOver={handleDragOver}
                             onDrop={() => handleDrop(index)}
                         >
-                            <p
-                                onClick={handleCopy}
-                                className="text-center uppercase"
-                                style={{ color: textColor }}
-                            >
+                            <p onClick={handleCopy} className="text-center uppercase" style={{ color: textColor }}>
                                 {color}
                             </p>
 
-                            {/* <p
-                                className="text-center uppercase"
-                                style={{ color: textColor }}
-                            >
-                                {colorName[index]}
-                            </p> */}
-
-                            {/* Color Picker */}
                             <input
                                 type="color"
                                 value={color}
-                                onChange={(e) => handleColorChange(e, index)}  // Detect color change
-                                onBlur={(e) => handleColorPickEnd(e, color)} // Detect when user finishes with the color picker
+                                onChange={(e) => handleColorChange(e, index)}
+                                onBlur={(e) => handleColorPickEnd(e, color)}
                                 className="mt-4 mb-2"
                             />
 
+                            <button onClick={() => handleShades(index, color)} className='border border-red-800'>
+                                View Shades
+                            </button>
 
-                            {/* Lock/Unlock button */}
                             <button onClick={() => toggleLockColor(index)}>
                                 {isLocked ? "🔒locked" : "🔓unlocked"}
                             </button>
@@ -259,6 +215,27 @@ const PaletteGen = () => {
                     );
                 })}
             </div>
+
+            {showShades && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 className="text-xl font-bold mb-4">Shades</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {shades.map((shade, idx) => (
+                                <div
+                                    onClick={(e) => { setColorShade(e, shade) }}
+                                    key={idx}
+                                    className="w-12 h-12"
+                                    style={{ backgroundColor: shade }}
+                                ></div>
+                            ))}
+                        </div>
+                        <button onClick={() => setShowShades(false)} className="mt-4 text-blue-500">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <ToastContainer />
         </div>
