@@ -10,16 +10,31 @@ export const monochromaticColors = (count) => {
   const interval = 0.9 / (count - 1); // Equal intervals based on count
 
   let lastColor = [];
-  for (let i = count - 1; i > 0; i--) {
-    // Reduce saturation and value by equal intervals
-    const newColor = chroma(baseColor)
-      .set("hsv.s", `${0.1 - interval * i}`) // The saturation should not be less than 0.15
-      .set("hsv.v", `${0.1 - interval * i}`); // The value should not be less than 0.15
-    palette.push(newColor);
-    if(i === count - 3) {
-      lastColor = chroma(newColor).set("hsv.v", "1");
+  if (count <= 3) {
+    for (let i = count - 1; i > 0; i--) {
+      // Reduce saturation and value by equal intervals
+      const newColor = chroma(baseColor)
+        .set("hsv.s", `${0.1 - interval * i}`) // The saturation should not be less than 0.15
+        .set("hsv.v", `${0.1 - interval * i}`); // The value should not be less than 0.15
+      palette.push(newColor);
+      if (i == count - 1) {
+        lastColor = chroma(newColor).set("hsv.v", "1");
+      }
     }
   }
+  else {
+    for (let i = count - 1; i > 0; i--) {
+      // Reduce saturation and value by equal intervals
+      const newColor = chroma(baseColor)
+        .set("hsv.s", `${0.1 - interval * i}`) // The saturation should not be less than 0.15
+        .set("hsv.v", `${0.1 - interval * i}`); // The value should not be less than 0.15
+      palette.push(newColor);
+      if (i == count - 3) {
+        lastColor = chroma(newColor).set("hsv.v", "1");
+      }
+    }
+  }
+
   palette.push(lastColor)
 
   return palette.map((color) => color.hex()); // Return palette in hex format
