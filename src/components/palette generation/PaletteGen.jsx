@@ -1,4 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
+import { BiSolidColor } from "react-icons/bi";
+import { FaLock } from "react-icons/fa";
+import { FaLockOpen } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import chroma from 'chroma-js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -185,25 +189,25 @@ const PaletteGen = () => {
                             />
 
                             {/* Shades option */}
-                            <button onClick={() => handleShades(index, color)} className='border border-red-800'>
-                                View Shades
+                            <button onClick={() => handleShades(index, color)} className='text-3xl'>
+                                <BiSolidColor />
                             </button>
 
                             {/* Lock/Unlock button */}
-                            <button
+                            <button className="mt-3 text-2xl"
                                 onClick={() =>
                                     toggleLockColor(index, lockedColors, setLockedColors)
                                 }
                             >
-                                {lockedColors.includes(index) ? "🔒 Unlock" : "🔓 Lock"}
+                                {lockedColors.includes(index) ? <FaLock /> : <FaLockOpen />}
                             </button>
                             {paletteColorsCount > 2 && (
                                 <button
                                     onClick={() => setColors(deleteColor(color, colors))}
-                                    className="pt-4"
+                                    className="pt-4 text-2xl"
                                     style={{ color: textColor }}
                                 >
-                                    Delete
+                                    <MdDelete />
                                 </button>
                             )}
 
