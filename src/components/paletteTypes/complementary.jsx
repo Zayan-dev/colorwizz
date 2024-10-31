@@ -23,7 +23,7 @@ export const complementaryColors = (count, baseColor = "") => {
     // Ensure base color has hue between (0, 360) saturation between (1, 0.2) and value between (1, 0.8)
     baseColor = chroma.hsv([
       Math.random() * 360,
-      Math.random() * (1 - 0.2) + 0.2,
+      Math.random() * (0.5 - 0.2) + 0.2,
       Math.random() * (1 - 0.8) + 0.8,
     ]);
   }

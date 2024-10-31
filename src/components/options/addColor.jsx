@@ -1,44 +1,31 @@
-const addColor = (e) => {
-  if (paletteColorsCount < 10) {
-    e.preventDefault();
-    const baseColor = chroma.random().saturate(2).brighten(1);
-    let newColor;
+import chroma from "chroma-js";
 
-    switch (mode) {
-      case "analogous":
-        newColor = chroma
-          .scale([
-            baseColor,
-            baseColor.set("hsl.h", "+30"),
-            baseColor.set("hsl.h", "-30"),
-          ])
-          .colors(paletteColorsCount + 1)[paletteColorsCount];
-        break;
+const addColor = (color1, color2) => {
+  // Convert both colors from hex to HSV
+  const hsv1 = chroma(color1).hsv();
+  const hsv2 = chroma(color2).hsv();
 
-      case "complementary":
-        newColor = chroma
-          .scale([baseColor, baseColor.set("hsl.h", "+180")])
-          .colors(paletteColorsCount + 1)[paletteColorsCount];
-        break;
+  // Calculate the middle HSV values
+  const middleHue = (hsv1[0] + hsv2[0]) / 2;
+  const middleSaturation = (hsv1[1] + hsv2[1]) / 2;
+  const middleValue = (hsv1[2] + hsv2[2]) / 2;
 
-      case "triadic":
-        newColor = chroma
-          .scale([
-            baseColor,
-            baseColor.set("hsl.h", "+120"),
-            baseColor.set("hsl.h", "-120"),
-          ])
-          .colors(paletteColorsCount + 1)[paletteColorsCount];
-        break;
+  // Create the middle color in HSV and return it as hex
+  const middleColor = chroma
+    .hsv(middleHue, middleSaturation, middleValue)
+    .hex();
 
-      default:
-        newColor = chroma
-          .scale([baseColor.darken(2), baseColor.brighten(2)])
-          .colors(paletteColorsCount + 1)[paletteColorsCount]; // Fallback for other modes
-        break;
-    }
+  return middleColor;
+};
 
-    setColors((prevColors) => [...prevColors, newColor]); // Add the new color to the palette
-    setPaletteColorsCount((prevCount) => prevCount + 1); // Increment the color count
-  }
+
+
+export const handleAddColor = (leftColor, rightColor, index, colors) => {
+  const newColor = addColor(leftColor, rightColor);
+  const updatedColors = [
+    ...colors.slice(0, index + 1),
+    newColor,
+    ...colors.slice(index + 1),
+  ];
+  return updatedColors;
 };
