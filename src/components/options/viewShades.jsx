@@ -1,22 +1,26 @@
-// generateShades.js
-import chroma from "chroma-js";
+import React from 'react'
 
-export const generateShades = (color, numShades = 20) => {
-  const baseColor = chroma(color);
-  const shades = [];
+const ViewShades = ({ shades, setColorShade, onClose }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-70 z-20 flex justify-center items-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h3 className="text-xl font-bold mb-4">Shades</h3>
+        <div className="flex flex-wrap gap-2">
+          {shades.map((shade, idx) => (
+            <div
+              onClick={(e) => { setColorShade(e, shade) }}
+              key={idx}
+              className="w-12 h-12"
+              style={{ backgroundColor: shade }}
+            ></div>
+          ))}
+        </div>
+        <button onClick={onClose} className="mt-4 text-blue-500">
+          Close
+        </button>
+      </div>
+    </div>
+  )
+}
 
-  for (let i = 0; i < numShades; i++) {
-    const shade = baseColor
-      .set("hsv.s", 1 - i * 0.05) // Decrease saturation
-    //   .set("hsv.v", 1 - i * 0.05); // Decrease value
-    shades.push(shade.hex());
-  }
-  return shades;
-};
-
-// changeColorShade.js
-export const changeColorShade = (colors, index, newShade) => {
-  const updatedColors = [...colors];
-  updatedColors[index] = newShade;
-  return updatedColors;
-};
+export default ViewShades;

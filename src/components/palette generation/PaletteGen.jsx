@@ -1,4 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
+import { BiSolidColor } from "react-icons/bi";
+import { FaLock } from "react-icons/fa";
+import { FaLockOpen } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import chroma from 'chroma-js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +15,9 @@ import { deleteColor } from "../options/deleteColor";
 import { shuffleArray } from "../utils/shuffleArray";
 import { handleColorChange, handleColorPickEnd, handleCopy, updateColorNames } from "../options/colorPicker";
 import { handleDrop, toggleLockColor } from "../options/dragAndLock";
+import ViewShades from "../options/viewShades";
+// import viewShades from "../options/viewShades.jsx";
+// import { handleShades } from "../options/viewShades";
 
 const PaletteGen = ({mode}) => {
     const [colors, setColors] = useState([]);
@@ -19,35 +26,38 @@ const PaletteGen = ({mode}) => {
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
     const [colorNames, setColorNames] = useState([]);
+    const [showShades, setShowShades] = useState(false); // Show/hide shades panel
+    const [index, setIndex] = useState(0);
+    const [shades, setShades] = useState([]);
     const prevColorsRef = useRef(colors);
 
     useEffect(() => {
-      // Update paletteColorsCount whenever colors state changes
-      setPaletteColorsCount(colors.length);
+        // Update paletteColorsCount whenever colors state changes
+        setPaletteColorsCount(colors.length);
     }, [colors]);
 
     useEffect(() => {
-      const handleKeyDown = (e) => {
-        if (e.code === "Space") {
-          e.preventDefault();
-          generatePalette();
-        }
-      };
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      };
+        const handleKeyDown = (e) => {
+            if (e.code === "Space") {
+                e.preventDefault();
+                generatePalette();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
     }, [mode, lockedColors, paletteColorsCount]);
 
 
     useEffect(() => {
-      generatePalette(); // Generate palette initially
+        generatePalette(); // Generate palette initially
     }, [mode])
 
 
     useEffect(() => {
-      const updatedNames = updateColorNames(colors, colorNames, prevColorsRef);
-      setColorNames(updatedNames);
+        const updatedNames = updateColorNames(colors, colorNames, prevColorsRef);
+        setColorNames(updatedNames);
     }, [colors]);
 
     const generatePalette = () => {
@@ -64,9 +74,6 @@ const PaletteGen = ({mode}) => {
                 newColors = triadicColors(paletteColorsCount);
                 break;
             case "vibrant":
-                // newColors = Array.from({ length: paletteColorsCount }, (_, i) =>
-                //   baseColor.set("hsl.h", `${i * (360 / paletteColorsCount)}`).hex()
-                // );
                 const baseColor = chroma.random().saturate(2);
                 const darkColor = baseColor.darken(2);
                 const brightColor = darkColor.set("hsl.h", "+180");
@@ -87,6 +94,20 @@ const PaletteGen = ({mode}) => {
         setColors(newColors);
     };
 
+    // const [index, setIndex] = useState(0);
+    const handleShades = (index, color) => {
+        const shadesArray = chroma.scale(['white', color, 'black']).mode('rgb').colors(25);
+        setShades(shadesArray);
+        setShowShades(true);
+        setIndex(index);
+    };
+
+    const setColorShade = (e, shade) => {
+        e.preventDefault();
+        const colorArray = [...colors];
+        colorArray[index] = shade
+        setColors(colorArray);
+    }
     return (
       <div>
         <div className="flex flex-col md:flex-row h-screen w-full pt-[4.5rem]">
@@ -128,77 +149,88 @@ const PaletteGen = ({mode}) => {
                   {color}
                 </p>
 
-                <p
-                  className="text-center uppercase"
-                  style={{ color: textColor }}
-                >
-                  {colorNames[index]}
-                </p>
+                            <p
+                                className="text-center uppercase"
+                                style={{ color: textColor }}
+                            >
+                                {colorNames[index]}
+                            </p>
 
-                {/* Color Picker */}
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) =>
-                    handleColorChange(e, colors, index, setColors)
-                  } // Detect color change
-                  // onBlur={() => handleColorPickEnd(color, index, setColorNames)} // Detect when user finishes with the color picker
-                  className="mt-4 mb-2 border-none cursor-pointer"
-                  placeholder="Color Picker"
-                />
+                            {/* Color Picker */}
+                            <input
+                                type="color"
+                                value={color}
+                                onChange={(e) =>
+                                    handleColorChange(e, colors, index, setColors)
+                                } // Detect color change
+                                // onBlur={() => handleColorPickEnd(color, index, setColorNames)} // Detect when user finishes with the color picker
+                                className="mt-4 mb-2 border-none cursor-pointer"
+                                placeholder="Color Picker"
+                            />
 
-                {/* Lock/Unlock button */}
-                <button
-                  onClick={() =>
-                    toggleLockColor(index, lockedColors, setLockedColors)
-                  }
-                >
-                  {lockedColors.includes(index) ? "🔒 Unlock" : "🔓 Lock"}
-                </button>
-                {paletteColorsCount > 2 && (
-                  <button
-                    onClick={() => setColors(deleteColor(color, colors))}
-                    className="pt-4"
-                    style={{ color: textColor }}
-                  >
-                    Delete
-                  </button>
-                )}
+                            {/* Shades option */}
+                            <button onClick={() => handleShades(index, color)} className='text-3xl' style={{ color: textColor }}>
+                                <BiSolidColor />
+                            </button>
 
-                {/* Hover detection between color divs */}
-                {index < colors.length - 1 && paletteColorsCount < 10 && (
-                  <div
-                    className={`absolute inset-y-0 -right-10 flex items-center justify-center w-20 z-10 transition-all duration-300 transform ease-in-out 
+                            {/* Lock/Unlock button */}
+                            <button className="mt-3 text-2xl"
+                                style={{ color: textColor }}
+                                onClick={() =>
+                                    toggleLockColor(index, lockedColors, setLockedColors)
+                                }
+                            >
+                                {lockedColors.includes(index) ? <FaLock /> : <FaLockOpen />}
+                            </button>
+                            {paletteColorsCount > 2 && (
+                                <button
+                                    onClick={() => setColors(deleteColor(color, colors))}
+                                    className="pt-4 text-2xl"
+                                    style={{ color: textColor }}
+                                >
+                                    <MdDelete />
+                                </button>
+                            )}
+
+                            {/* Hover detection between color divs */}
+                            {index < colors.length - 1 && paletteColorsCount < 10 && (
+                                <div
+                                    className={`absolute inset-y-0 -right-10 flex items-center justify-center w-20 z-10 transition-all duration-300 transform ease-in-out 
           ${hoverIndex === index ? "opacity-100" : "opacity-0"}`}
-                    onMouseEnter={() => setHoverIndex(index)}
-                    onMouseLeave={() => setHoverIndex(null)}
-                  >
-                    {hoverIndex === index && (
-                      <button
-                        onClick={() => {
-                          const updatedColors = handleAddColor(
-                            color,
-                            colors[index + 1],
-                            index,
-                            colors
-                          );
-                          setColors(updatedColors);
-                        }}
-                        className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-20"
-                        style={{ top: "50%" }}
-                      >
-                        <p className="text-4xl font-bold pb-2">+</p>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                                    onMouseEnter={() => setHoverIndex(index)}
+                                    onMouseLeave={() => setHoverIndex(null)}
+                                >
+                                    {hoverIndex === index && (
+                                        <button
+                                            onClick={() => {
+                                                const updatedColors = handleAddColor(
+                                                    color,
+                                                    colors[index + 1],
+                                                    index,
+                                                    colors
+                                                );
+                                                setColors(updatedColors);
+                                            }}
+                                            className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-20"
+                                            style={{ top: "50%" }}
+                                        >
+                                            <p className="text-4xl font-bold pb-2">+</p>
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
 
-        <ToastContainer />
-      </div>
+            {/* view shades functionality */}
+            {showShades && (
+                <ViewShades shades={shades} setColorShade={setColorShade} onClose={() => setShowShades(false)}></ViewShades>
+            )}
+
+            <ToastContainer />
+        </div>
     );
 };
 
