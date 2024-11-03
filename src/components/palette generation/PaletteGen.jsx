@@ -12,11 +12,10 @@ import { shuffleArray } from "../utils/shuffleArray";
 import { handleColorChange, handleColorPickEnd, handleCopy, updateColorNames } from "../options/colorPicker";
 import { handleDrop, toggleLockColor } from "../options/dragAndLock";
 
-const PaletteGen = () => {
+const PaletteGen = ({mode}) => {
     const [colors, setColors] = useState([]);
     const [hoverIndex, setHoverIndex] = useState(null);
     const [paletteColorsCount, setPaletteColorsCount] = useState(5);
-    const [mode, setMode] = useState('monochromatic');
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
     const [colorNames, setColorNames] = useState([]);
@@ -90,25 +89,6 @@ const PaletteGen = () => {
 
     return (
       <div>
-        <div className="w-full h-[4.5rem] px-8 flex justify-between items-center fixed bg-white">
-          <div className="flex">
-            <select
-              className="p-3 border border-gray rounded-md"
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-            >
-              <option value="monochromatic">Monochromatic</option>
-              <option value="analogous">Analogous</option>
-              <option value="complementary">Complementary</option>
-              <option value="triadic">Triadic</option>
-              <option value="vibrant">Vibrant</option>
-            </select>
-            <p className="text-base m-5 text-stone-500">
-              Hit spacebar to generate colors palette
-            </p>
-          </div>
-        </div>
-
         <div className="flex flex-col md:flex-row h-screen w-full pt-[4.5rem]">
           {colors.map((color, index) => {
             const luminance = chroma(color).luminance();
@@ -123,7 +103,7 @@ const PaletteGen = () => {
                   width:
                     window.innerWidth > 760
                       ? `${100 / colors.length}%`
-                      : "100%",
+                      : `${100}%`,
                   cursor: "move",
                 }}
                 draggable
