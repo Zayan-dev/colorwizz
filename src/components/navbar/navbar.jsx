@@ -6,6 +6,7 @@ import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import { downloadPalette, drawPalette } from "../options/downloadPalette";
 import { useColors } from "../../contextAPI/colorsContext";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
 const Navbar = ({ mode, setMode }) => {
@@ -30,17 +31,28 @@ const Navbar = ({ mode, setMode }) => {
   };
 
   const handleSavePalette = async () => {
+    const token = Cookies.get("token");
     try {
-      const data = { colors };
-      const response = await axios.post("http://localhost:5000/api/", data);
-      if (response.status === 200) {
+      const response = await axios.post(
+        "http://localhost:5000/api/savePalette",
+        {colors},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 201) {
         toast.success("Palette saved!");
+      } else {
+        toast.success("Palette already exists!");
       }
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        toast.error("Palette saved already");
+      if (error.response && error.response.status === 404) {
+        toast.error("Please Login");
       } else {
-        toast.error("network error");
+        toast.error("Network Error");
       }
     }
   };

@@ -77,3 +77,37 @@ export const signIn = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+
+export const savePalette = async (req, res) => {
+    try {
+        const user = req.user;
+        const colors = req.body.colors
+        if (!user){
+          return res
+            .status(404)
+            .json({ message: "User not sent from middleware" });
+        }
+
+        const userWithPalette = await User.findOne({
+            _id: user._id,
+            savedPalettes: {
+                $elemMatch: { $eq: colors } // Check if colors exists in savedPalettes
+            }
+        });
+
+        if (userWithPalette) {
+            return res.status(200).json({ message: "Palette already saved", exists: true });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+          user._id,
+          { $push: { savedPalettes: colors } },
+          {new: true}
+        );
+
+        return res.status(201).json({ message: "Palette Saved", updatedUser });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+}
