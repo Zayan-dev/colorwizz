@@ -12,73 +12,39 @@ import Home from "./components/palette generation/PaletteGen.jsx"; // Example ho
 import "./App.css";
 import Navbar from "./components/navbar/navbar.jsx";
 import Header from "./components/navbar/header.jsx";
+import { PaletteProvider } from "./contextAPI/PaletteHistoryContext.jsx";
 
 const App = () => {
   const [mode, setMode] = useState("monochromatic");
-  const [paletteHistory, setPaletteHistory] = useState([]); // Stores the history of palettes
-  const [currentIndex, setCurrentIndex] = useState(0); // Tracks the current palette in history
-
-  // Function to add a new palette to history
-  const savePaletteToHistory = (newPalette) => {
-    const updatedHistory = [
-      ...paletteHistory,
-      newPalette,
-    ];
-    setPaletteHistory(updatedHistory);
-    setCurrentIndex(updatedHistory.length - 1);
-    
-    // console.log("History Index:", paletteHistory);
-  };
-
-  console.log("Updated History:", paletteHistory); // Log the updated history
-  console.log("Current Index:", currentIndex);
-  const undo = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-    console.log("undo called")
-  };
-
-  const redo = () => {
-    if (currentIndex < paletteHistory.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    console.log("undo called");
-  };
-
   const location = useLocation();
 
   // Only show navbar if the route is not '/signup'
   // const showHeader = location.pathname !== "/signup";
   const showNavbar = location.pathname !== "/signup" && location.pathname !== "/signin";
   return (
-    <div>
-      <Header />
-      {showNavbar && (
-        <Navbar
-          mode={mode}
-          setMode={setMode}
-          undo={undo}
-          redo={redo}
-          canUndo={currentIndex > 0}
-          canRedo={currentIndex < paletteHistory.length - 1}
-        />
-      )}
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              mode={mode}
-              savePaletteToHistory={savePaletteToHistory}
-              currentPalette={paletteHistory[currentIndex]}
-            />
-          }
-        />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
-      </Routes>
-    </div>
+    <PaletteProvider>
+      <div>
+        <Header />
+        {showNavbar && (
+          <Navbar
+            mode={mode}
+            setMode={setMode}
+          />
+        )}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                mode={mode}
+              />
+            }
+          />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Signin />} />
+        </Routes>
+      </div>
+    </PaletteProvider>
   );
 };
 

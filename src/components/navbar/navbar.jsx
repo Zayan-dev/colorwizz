@@ -1,7 +1,13 @@
 import React from "react";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
+import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 
-const Navbar = ({ mode, setMode, undo, redo, canUndo, canRedo }) => {
+const Navbar = ({ mode, setMode}) => {
+
+  const { undo, redo, currentIndex, paletteHistory } = usePalette();
+
+  const canUndo = currentIndex > 0;
+  const canRedo = currentIndex < paletteHistory.length - 1;
   return (
     <div className="w-full fixed top-[4.49rem] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 h-[4.5rem] flex justify-between items-center">
