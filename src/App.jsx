@@ -14,6 +14,7 @@ import Navbar from "./components/navbar/navbar.jsx";
 import Header from "./components/navbar/header.jsx";
 import { PaletteProvider } from "./contextAPI/PaletteHistoryContext.jsx";
 import { ColorsProvider } from "./contextAPI/colorsContext.jsx";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   const [mode, setMode] = useState("monochromatic");
@@ -26,7 +27,9 @@ const App = () => {
     <PaletteProvider>
       <ColorsProvider>
         <div>
-          <Header />
+          <ToastContainer />
+
+        <Header />
           {showNavbar && <Navbar mode={mode} setMode={setMode} />}
           <Routes>
             <Route path="/" element={<Home mode={mode} />} />

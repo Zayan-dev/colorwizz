@@ -1,3 +1,7 @@
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
 export const signUp = async (req, res) => {
     try {
         const { username, email, password, contact, gender } = req.body;
@@ -20,6 +24,55 @@ export const signUp = async (req, res) => {
             .status(201)
             .json({ message: "User Created Successfully", user: newUser });
 
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const signIn = async (req, res) => {
+    try {
+        const { email, password, isRememberMe } = req.body;
+
+        const user = await User.findOne({ email }).exec();
+
+        if (!user) {
+            return res.status(404).json({ message: "User not Found" });
+        }
+
+        bcrypt.compare(password, user.password, function (error, result) {
+            if (error) return res.status(500).json({ message: error.message });
+            if (result == true) {
+                const token = jwt.sign({ uId: user._id }, process.env.SECRET);
+                // console.log(token);
+                // Set the token as a cookie
+                // res.cookie("token", token, {
+                //     httpOnly: true,
+                //     maxAge: isRememberMe ? 604800 * 1000 : 3600 * 1000, // Cookie expires in 7 days (604800 seconds) if remember me is true, otherwise 1 hour (3600 seconds)
+                //     // secure: process.env.NODE_ENV === 'production',
+                //     secure: false,
+                //     sameSite: 'strict',
+                //     path: '/',
+                // });
+                // res.cookie("token", token, {
+                //     httpOnly: true,
+                //     maxAge: isRememberMe ? 604800 * 1000 : 3600 * 1000, // Cookie expires in 7 days (604800 seconds) if remember me is true, otherwise 1 hour (3600 seconds)
+                //     // secure: process.env.NODE_ENV === 'production',
+                //     secure: false,
+                //     sameSite: 'strict',
+                //     path: '/',
+                // });
+
+                // Respond with success
+                const { name, email, contact, gender } = user;
+                const responseUser = {
+                    name, email, contact, gender
+                }
+                res.status(200).json({ message: "User LoggedIn Successfully", user: responseUser, token: token });
+            }
+            else if (result == false) {
+                return res.status(404).json({ message: "User not Found" });
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
