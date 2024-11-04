@@ -13,6 +13,7 @@ import "./App.css";
 import Navbar from "./components/navbar/navbar.jsx";
 import Header from "./components/navbar/header.jsx";
 import { PaletteProvider } from "./contextAPI/PaletteHistoryContext.jsx";
+import { ColorsProvider } from "./contextAPI/colorsContext.jsx";
 
 const App = () => {
   const [mode, setMode] = useState("monochromatic");
@@ -23,27 +24,17 @@ const App = () => {
   const showNavbar = location.pathname !== "/signup" && location.pathname !== "/signin";
   return (
     <PaletteProvider>
-      <div>
-        <Header />
-        {showNavbar && (
-          <Navbar
-            mode={mode}
-            setMode={setMode}
-          />
-        )}
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Home
-                mode={mode}
-              />
-            }
-          />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/signin" element={<Signin />} />
-        </Routes>
-      </div>
+      <ColorsProvider>
+        <div>
+          <Header />
+          {showNavbar && <Navbar mode={mode} setMode={setMode} />}
+          <Routes>
+            <Route path="/" element={<Home mode={mode} />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/signin" element={<Signin />} />
+          </Routes>
+        </div>
+      </ColorsProvider>
     </PaletteProvider>
   );
 };

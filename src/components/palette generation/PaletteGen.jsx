@@ -13,11 +13,13 @@ import { handleDrop, toggleLockColor } from "../options/dragAndLock";
 import ViewShades from "../options/viewShades";
 import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import { generatePaletteColors } from "../options/generatePalette";
+import { useColors } from "../../contextAPI/colorsContext";
 
 const PaletteGen = ({mode}) => {
   const { savePaletteToHistory, currentPalette } = usePalette();
 
-  const [colors, setColors] = useState([]);
+  const { colors, setColors } = useColors();
+
   const [hoverIndex, setHoverIndex] = useState(null);
   const [paletteColorsCount, setPaletteColorsCount] = useState(5);
   const [draggedIndex, setDraggedIndex] = useState(null);
