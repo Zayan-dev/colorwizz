@@ -1,0 +1,15 @@
+import mongoose, { Schema } from "mongoose";
+
+const userSchema = new Schema(
+    {
+        email: { type: String, required: true },
+        password: { type: String, required: true },
+        username: { type: String, required: true },
+        contact: { type: String }, // Can add a regex expression for validation e.g. match: /^[0-9]{10}$/
+        gender: { type: String }, // Enum for predefined gender options
+    },
+    { timestamps: true }
+);
+
+const User = mongoose.models.User || mongoose.model("User", userSchema, "users");
+export default User;
