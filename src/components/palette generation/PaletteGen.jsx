@@ -17,7 +17,7 @@ import { handleColorChange, handleColorPickEnd, handleCopy, updateColorNames } f
 import { handleDrop, toggleLockColor } from "../options/dragAndLock";
 import ViewShades from "../options/viewShades";
 
-const PaletteGen = ({mode}) => {
+const PaletteGen = ({mode, savePaletteToHistory, currentPalette}) => {
     const [colors, setColors] = useState([]);
     const [hoverIndex, setHoverIndex] = useState(null);
     const [paletteColorsCount, setPaletteColorsCount] = useState(5);
@@ -25,9 +25,15 @@ const PaletteGen = ({mode}) => {
     const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
     const [colorNames, setColorNames] = useState([]);
     const [showShades, setShowShades] = useState({color: "", index:null}); // Show/hide shades panel
-    const [index, setIndex] = useState(0);
-    const [shades, setShades] = useState([]);
+    // const [index, setIndex] = useState(0);
+    // const [shades, setShades] = useState([]);
     const prevColorsRef = useRef(colors);
+
+    useEffect(() => {
+      if (currentPalette) {
+        setColors(currentPalette); // Set colors to the current palette in history
+      }
+    }, [currentPalette]);
 
     useEffect(() => {
         // Update paletteColorsCount whenever colors state changes
@@ -90,6 +96,7 @@ const PaletteGen = ({mode}) => {
         // Shuffle the newColors array if mode isn't monochromatic
         if (mode !== "monochromatic") newColors = shuffleArray(newColors, lockedColors);
         setColors(newColors);
+        savePaletteToHistory(newColors);
     };
 
     const handleShades = (color, index) => {
