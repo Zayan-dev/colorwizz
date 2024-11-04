@@ -218,7 +218,7 @@ const PaletteGen = ({mode}) => {
           colorInfo={showShades}
         ></ViewShades>
       )}
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </div>
   );
 };

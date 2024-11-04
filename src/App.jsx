@@ -13,6 +13,7 @@ import "./App.css";
 import Navbar from "./components/navbar/navbar.jsx";
 import Header from "./components/navbar/header.jsx";
 import { PaletteProvider } from "./contextAPI/PaletteHistoryContext.jsx";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   const [mode, setMode] = useState("monochromatic");
@@ -24,6 +25,8 @@ const App = () => {
   return (
     <PaletteProvider>
       <div>
+        <ToastContainer />
+
         <Header />
         {showNavbar && (
           <Navbar
