@@ -1,24 +1,47 @@
-import React, {useRef} from "react";
+import React, { useRef, useState } from "react";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
+import { CiHeart } from "react-icons/ci";
+import { RxBorderDotted } from "react-icons/rx";
 import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import { downloadPalette, drawPalette } from "../options/downloadPalette";
 import { useColors } from "../../contextAPI/colorsContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const Navbar = ({ mode, setMode}) => {
-
+const Navbar = ({ mode, setMode }) => {
   const { undo, redo, currentIndex, paletteHistory } = usePalette();
   const { colors } = useColors();
 
   const canUndo = currentIndex > 0;
   const canRedo = currentIndex < paletteHistory.length - 1;
 
-
   const canvasRef = useRef(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
   const handlePaletteDownload = () => {
     if (canvasRef.current) {
       drawPalette(canvasRef.current, colors);
       downloadPalette(canvasRef.current);
+    }
+  };
+
+  const handleSavePalette = async () => {
+    try {
+      const data = { colors };
+      const response = await axios.post("http://localhost:5000/api/", data);
+      if (response.status === 200) {
+        toast.success("Palette saved!");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        toast.error("Palette saved already");
+      } else {
+        toast.error("network error");
+      }
     }
   };
 
@@ -41,28 +64,41 @@ const Navbar = ({ mode, setMode}) => {
             Hit spacebar to generate colors palette
           </p>
         </div>
-        <div className="flex space-x-6">
+        <div className="flex justify-center items-center space-x-6">
+          <RxBorderDotted
+            className="text-2xl cursor-pointer"
+            onClick={toggleDropdown}
+          />
+          {dropdownOpen && (
+            <div className="border relative z-50 right-12 top-[4.5rem] bg-white shadow-lg rounded-md w-40 p-2">
+              <ul className="space-y-2">
+                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">Option 1</li>
+                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">Option 2</li>
+                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">Option 3</li>
+              </ul>
+            </div>
+          )}
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
-              className={`text-2xl  ${
-                canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
-              }`}
+              className={`text-2xl ${canUndo ? "text-black hover:text-blue-500" : "text-darkGray"}`}
             />
           </button>
           <button onClick={redo} disabled={!canRedo}>
             <IoIosRedo
-              className={`text-2xl  ${
-                canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
-              }`}
+              className={`text-2xl ${canRedo ? "text-black hover:text-blue-500" : "text-darkGray"}`}
             />
           </button>
           <button
             onClick={handlePaletteDownload}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            className="px-4 py-2 bg-blue-500 text-white rounded"
           >
             Download
           </button>
-          {/* Hidden canvas to prepare image */}
+          <div>
+            <button onClick={handleSavePalette} className="flex justify-center items-center p-1 gap-1 text-center">
+              <p>Save</p> <CiHeart className="text-2xl" />
+            </button>
+          </div>
           <canvas ref={canvasRef} style={{ display: "none" }} />
         </div>
       </div>
