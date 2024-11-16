@@ -200,7 +200,7 @@ const PaletteGen = ({mode}) => {
                         );
                         setColors(updatedColors);
                       }}
-                      className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-20"
+                      className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-10"
                       style={{ top: "50%" }}
                     >
                       <p className="text-4xl font-bold pb-2">+</p>

@@ -1,7 +1,9 @@
 import React, { useRef, useState } from "react";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
+import { IoCamera } from "react-icons/io5";
 import { CiHeart } from "react-icons/ci";
 import { RxBorderDotted } from "react-icons/rx";
+import ImagePickerModal from "../options/imagePicker/imagePickerModal";
 import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import { downloadPalette, drawPalette } from "../options/downloadPalette";
 import { useColors } from "../../contextAPI/colorsContext";
@@ -10,19 +12,17 @@ import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
 const Navbar = ({ mode, setMode }) => {
+  // Image Picker
+  const [isPickerModalOpen, setPickerModalOpen] = useState(false);
+
+  // Undo Redo
   const { undo, redo, currentIndex, paletteHistory } = usePalette();
   const { colors } = useColors();
-
   const canUndo = currentIndex > 0;
   const canRedo = currentIndex < paletteHistory.length - 1;
 
+  // Export Palette
   const canvasRef = useRef(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
-
   const handlePaletteDownload = () => {
     if (canvasRef.current) {
       drawPalette(canvasRef.current, colors);
@@ -30,6 +30,13 @@ const Navbar = ({ mode, setMode }) => {
     }
   };
 
+  // Extra options
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  // Save Palette
   const handleSavePalette = async () => {
     const token = Cookies.get("token");
     try {
@@ -52,7 +59,7 @@ const Navbar = ({ mode, setMode }) => {
       if (error.response && error.response.status === 404) {
         toast.error("Please Login");
       } else {
-        toast.error("Network Error");
+        toast.error(error.response.data.message);
       }
     }
   };
@@ -84,20 +91,36 @@ const Navbar = ({ mode, setMode }) => {
           {dropdownOpen && (
             <div className="border relative z-50 right-12 top-[4.5rem] bg-white shadow-lg rounded-md w-40 p-2">
               <ul className="space-y-2">
-                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">Option 1</li>
-                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">Option 2</li>
-                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">Option 3</li>
+                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
+                  Option 1
+                </li>
+                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
+                  Option 2
+                </li>
+                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
+                  Option 3
+                </li>
               </ul>
             </div>
           )}
+          <button
+            onClick={() => setPickerModalOpen(true)}
+            disabled={isPickerModalOpen}
+          >
+            <IoCamera className="text-2xl text-black hover:text-blue-500" />
+          </button>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
-              className={`text-2xl ${canUndo ? "text-black hover:text-blue-500" : "text-darkGray"}`}
+              className={`text-2xl ${
+                canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
+              }`}
             />
           </button>
           <button onClick={redo} disabled={!canRedo}>
             <IoIosRedo
-              className={`text-2xl ${canRedo ? "text-black hover:text-blue-500" : "text-darkGray"}`}
+              className={`text-2xl ${
+                canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
+              }`}
             />
           </button>
           <button
@@ -107,11 +130,24 @@ const Navbar = ({ mode, setMode }) => {
             Download
           </button>
           <div>
-            <button onClick={handleSavePalette} className="flex justify-center items-center p-1 gap-1 text-center">
+            <button
+              onClick={handleSavePalette}
+              className="flex justify-center items-center p-1 gap-1 text-center"
+            >
               <p>Save</p> <CiHeart className="text-2xl" />
             </button>
           </div>
+
+          {/* Export colors */}
           <canvas ref={canvasRef} style={{ display: "none" }} />
+
+          {/* Image picker Modal */}
+          {isPickerModalOpen && (
+            <ImagePickerModal
+              isOpen={isPickerModalOpen}
+              onClose={() => setPickerModalOpen(false)}
+            />
+          )}
         </div>
       </div>
     </div>

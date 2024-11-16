@@ -6,7 +6,9 @@ export const isUserLoggedIn = async (req, res, next) => {
   
     let token = req.body.token || req.headers.authorization?.split(" ")[1]; //token from client browser
 
-    if (!token) return res.status(404).json({ message: "Unauthorized User" });
+    if (!token || token === "undefined" || token === null || token === ""){
+      return res.status(404).json({ message: "Unauthorized User" });
+    }
     const decoded = jwt.verify(token, process.env.SECRET);
 
     // Finding the user by ID from the decoded token
