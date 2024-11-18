@@ -10,6 +10,7 @@ import { useColors } from "../../contextAPI/colorsContext";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ mode, setMode }) => {
   // Image Picker
@@ -109,6 +110,11 @@ const Navbar = ({ mode, setMode }) => {
           >
             <IoCamera className="text-2xl text-black hover:text-blue-500" />
           </button>
+          <Link to='/visualizePalette'>
+            <p className="text-base text-black hover:text-blue-500">
+              Palette Visualizer
+            </p>
+          </Link>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
               className={`text-2xl ${
