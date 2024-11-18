@@ -53,4 +53,5 @@ export const toggleLockColor = (index, lockedColors, setLockedColors) => {
       ? prevLocked.filter((i) => i !== index)
       : [...prevLocked, index]
   );
+  console.log(lockedColors)
 };

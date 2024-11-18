@@ -5,3 +5,17 @@ export const deleteColor = (colorHex, colors) => {
   // Return the updated colors array
   return updatedColors;
 }
+
+export  const handleAfterDeleteLockedColors = (lockedColors, index) => {
+  const afterDeleteLockedColors = []
+  for (let i = 0; i<lockedColors.length; i++) {
+    if(lockedColors[i]>index){
+      afterDeleteLockedColors[i] = lockedColors[i] - 1;
+    }
+   else{
+    afterDeleteLockedColors[i] = lockedColors[i];
+    }
+  }
+  return afterDeleteLockedColors;
+
+}
