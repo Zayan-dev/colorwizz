@@ -6,8 +6,8 @@ import { MdDelete } from "react-icons/md";
 import chroma from 'chroma-js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { handleAddColor } from '../options/addColor';
-import { deleteColor } from "../options/deleteColor";
+import { handleAddColor, handleUpdatedLockedColors } from '../options/addColor';
+import { deleteColor, handleAfterDeleteLockedColors } from "../options/deleteColor";
 import { handleColorChange, handleColorPickEnd, handleCopy, updateColorNames } from "../options/colorPicker";
 import { handleDrop, toggleLockColor } from "../options/dragAndLock";
 import ViewShades from "../options/viewShades";
@@ -15,7 +15,7 @@ import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import { generatePaletteColors } from "../options/generatePalette";
 import { useColors } from "../../contextAPI/colorsContext";
 
-const PaletteGen = ({mode}) => {
+const PaletteGen = ({ mode }) => {
   const { savePaletteToHistory, currentPalette } = usePalette();
 
   const { colors, setColors } = useColors();
@@ -66,7 +66,7 @@ const PaletteGen = ({mode}) => {
       isInitialRender.current = false;
       setColors(initialPalette);
       savePaletteToHistory(initialPalette); // Only save the initial palette on first render
-    } else if(currentPalette.length && !isInitialRender.current) {
+    } else if (currentPalette.length && !isInitialRender.current) {
       setColors(initialPalette);
       savePaletteToHistory(initialPalette); // Save new palettes on mode change
     }
@@ -173,7 +173,11 @@ const PaletteGen = ({mode}) => {
               </button>
               {paletteColorsCount > 2 && (
                 <button
-                  onClick={() => setColors(deleteColor(color, colors))}
+                  onClick={() => {
+                    setColors(deleteColor(color, colors))
+                    setLockedColors(handleAfterDeleteLockedColors(lockedColors, index))
+                  }
+                  }
                   className="pt-4 text-2xl"
                   style={{ color: textColor }}
                 >
@@ -196,9 +200,12 @@ const PaletteGen = ({mode}) => {
                           color,
                           colors[index + 1],
                           index,
-                          colors
+                          colors,
+                          lockedColors
                         );
                         setColors(updatedColors);
+                        const updatedLockedColors = handleUpdatedLockedColors(colors, lockedColors, index)
+                        setLockedColors(updatedLockedColors)
                       }}
                       className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-10"
                       style={{ top: "50%" }}

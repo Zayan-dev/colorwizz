@@ -22,10 +22,30 @@ const addColor = (color1, color2) => {
 
 export const handleAddColor = (leftColor, rightColor, index, colors) => {
   const newColor = addColor(leftColor, rightColor);
+  // if(lockedColors.includes(index+1)){
+  //   console.log("mubarak")
+  // }
   const updatedColors = [
     ...colors.slice(0, index + 1),
     newColor,
     ...colors.slice(index + 1),
   ];
+  // console.log(index+" from handle Add Color")
+
   return updatedColors;
 };
+
+export  const handleUpdatedLockedColors = (colors,lockedColors, index) => {
+  const updatedLockedColors = []
+  for (let i = 0; i<lockedColors.length; i++) {
+    if(lockedColors[i]>index){
+    updatedLockedColors[i] = lockedColors[i] + 1;
+    }
+   else{
+      updatedLockedColors[i] = lockedColors[i];
+    }
+  }
+  return updatedLockedColors;
+
+}
+
