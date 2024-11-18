@@ -1,72 +1,157 @@
-import React, { useState } from 'react';
-// @ts-ignore
-import { ColorExtractor } from 'react-color-extractor';
-import { ColorRing } from 'react-loader-spinner'; // Example library for showing a loader
-// import ColorPalette from './ColorPalette';
+import React, { useState, useEffect } from 'react';
+import { usePalette as useColorThiefPalette } from "color-thief-react";
+import { ColorRing } from 'react-loader-spinner';
 import Modal from 'react-modal';
-import { MdClose, MdAddCircle, MdRemoveCircle } from "react-icons/md";
+import { MdClose, MdAddCircle, MdRemoveCircle , MdLock, MdDelete, MdLockOpen} from "react-icons/md";
 import { useColors } from '../../../contextAPI/colorsContext';
+import { usePalette } from '../../../contextAPI/PaletteHistoryContext';
+import chroma from 'chroma-js';
 
 const ImagePickerModal = ({ isOpen, onClose }) => {
-    // States
+  // States
   const [image, setImage] = useState(null);
-  const [pickedColors, setPickedColors] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [key, setKey] = useState(0);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [displayedColors, setDisplayedColors] = useState([]);
 
-  // Context 
+  // Context APIs used only on onclick of next button
+  const { savePaletteToHistory } = usePalette();
   const { setColors } = useColors();
+
+  // Extracting colors
+  const { data, loading } = useColorThiefPalette(image, 20, "hex");
+
+  // Effect to set displayed colors when `data` is available
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setImageUploading(loading);
+      setDisplayedColors(getRandomColors(data));
+    }
+  }, [data]);
 
   // functions
 
+  // Setting image
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setLoading(true);
+      setImageUploading(true);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
-        setLoading(false);
+        setImageUploading(false);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const extractColors = (newColors) => {
-    const numColorsToExtract = pickedColors.length > 0 ? pickedColors.length : 5; // Extract based on current palette size or 5 initially
-    const extractedColors = newColors.slice(0, numColorsToExtract);
-    setPickedColors(extractedColors);
+  // Function to return an array of 5 random colors object with locked = false
+  const getRandomColors = (colorsArray) => {
+    const count = displayedColors.length > 0 ? displayedColors.length : 5;
+    const shuffled = colorsArray.sort(() => 0.5 - Math.random()); // Shuffle colors
+    // Filter out the colors that are already present as locked colors
+    const availableColors = shuffled.filter(
+      (color) =>
+        !displayedColors.some(
+          (colorObj) => colorObj.locked && colorObj.color === color
+        )
+    );
+    const formattedColors = availableColors.slice(0, count).map((color) => ({
+      color: color,
+      locked: false,
+    }));
+    return formattedColors; // Return the first 'count' colors
+  };
+
+  const changePalette = () => {
+    // Get random colors 
+    const newColors = getRandomColors(data);
+
+    // Map through the current displayedColors and update only the unlocked colors
+    setDisplayedColors((prevColors) =>
+      prevColors.map((colorObj, index) => {
+        if (colorObj.locked) {
+          // If the color is locked, retain the existing color
+          return colorObj;
+        } else {
+          // If the color is not locked, replace it with a new color from newColors
+          return newColors[index] || colorObj;
+        }
+      })
+    );
   };
 
   // Function to add a color to the existing palette
   const addColor = (colorsArray) => {
-    console.log("add")
-    if (pickedColors.length < 10) {
-      const newColor = colorsArray[pickedColors.length];
-      setPickedColors((prevColors) => [...prevColors, newColor]);
-    }
-  };
-
-  // Function to remove a color from the palette, ensuring there are at least 2 pickedColors left
-  const removeColor = (colorToRemove) => {
-    if (pickedColors.length > 2) {
-      setPickedColors((prevColors) =>
-        prevColors.filter((color) => color !== colorToRemove)
+    if (displayedColors.length < 10) {
+      // find a color that is not already present in the current colors
+      const newColor = colorsArray.find(
+        (color) =>
+          !displayedColors.some(
+            (existingColor) => existingColor.color === color
+          )
       );
+
+      if (newColor) {
+        setDisplayedColors((prevColors) => [
+          ...prevColors,
+          { color: newColor, locked: false },
+        ]);
+      }
     }
   };
 
-  const changePalette = () => {
-    setKey((prevKey) => prevKey + 1); // Increment key to force re-mount
+  // Function to remove a color from the palette right side, ensuring there are at least 2 left
+  const removeColor = () => {
+    if (displayedColors.length > 2) {
+      // Check if the last color is locked
+      const lastColor = displayedColors[displayedColors.length - 1];
+
+      // If the last color is locked, remove an unlocked color
+      if (lastColor.locked) {
+        // Find an unlocked color to remove
+        const updatedColors = displayedColors.filter(
+          (colorObj) => !colorObj.locked
+        );
+
+        // If we have unlocked colors, remove one and update the displayedColors
+        if (updatedColors.length < displayedColors.length) {
+          const removedColor = updatedColors.pop(); // Remove the last unlocked color
+          setDisplayedColors([
+          ...updatedColors,
+          ...displayedColors.filter(colorObj => colorObj.locked)
+        ]);// Update the displayedColors with removed unlocked color
+        }
+      } else {
+        // If the last color is not locked, simply remove it
+        setDisplayedColors((prevColors) => prevColors.slice(0, -1));
+      }
+    }
   };
-  // Function to handle the "Change Palette" button
-//   const changePalette = () => {
-//     // Force a re-render or refresh of the color extraction
-//     setImage((prevImage) => {
-//       // This ensures the `ColorExtractor` runs again, using the existing image and extracting pickedColors
-//       return prevImage ? `${prevImage}?${new Date().getTime()}` : prevImage;
-//     });
-//   };
+
+  // Delete a specific color
+  const deleteColor = (color) => {
+    setDisplayedColors((prevColors) =>
+      prevColors.filter((c) => c.color !== color)
+    );
+  };
+
+  // Function to lock a color
+  const lockColor = (color) => {
+    setDisplayedColors((prevColors) =>
+      prevColors.map((c) => (c.color === color ? { ...c, locked: true } : c))
+    );
+  };
+
+  // Function to unlock a color
+  const unlockColor = (color) => {
+    setDisplayedColors((prevColors) =>
+      prevColors.map((c) => (c.color === color ? { ...c, locked: false } : c))
+    );
+  };
+
+  const getColorValues = (colorsArray) => {
+    return colorsArray.map((colorObj) => colorObj.color);
+  };
 
 
   return (
@@ -74,20 +159,20 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
       appElement={document.getElementById("root")}
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="bg-white p-4 z-50 rounded-lg max-w-3xl mx-auto mt-32 my-10 outline-none shadow-lg"
+      className="bg-white py-4 px-8 z-50 rounded-lg max-w-fit mx-auto mt-32 my-10 outline-none shadow-lg"
       overlayClassName={{
         base: "fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto ", // Custom styles for the overlay
         afterOpen: "opacity-100",
         beforeClose: "opacity-0",
       }}
     >
-      <div className="flex justify-between items-center my-4 pb-4">
+      <div className="flex justify-between items-center my-4 pb-4 gap-16">
         <button onClick={onClose}>
           <MdClose className="text-3xl text-black hover:text-blue-500" />
         </button>
 
         {image ? (
-          <h1 className="text-2xl text-center font-bold">Image Picker</h1>
+          <h1 className="text-2xl text-center font-bold">Image Color Picker</h1>
         ) : (
           <h1 className="text-2xl text-center font-bold">Upload an Image</h1>
         )}
@@ -95,18 +180,19 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
           <button
             onClick={() => {
               onClose();
-              setColors(pickedColors); // Replace `newColors` with the appropriate value you want to set.
+              setColors(getColorValues(displayedColors));
+              savePaletteToHistory(getColorValues(displayedColors));
             }}
             className="bg-blue-500 hover:bg-blue-800 text-white px-4 py-2 rounded dropdown"
           >
-            Next
+            Open
           </button>
         ) : (
           <div></div>
         )}
       </div>
 
-      {loading ? (
+      {imageUploading ? (
         <div className="flex h-40 justify-center items-center">
           <ColorRing
             visible={true}
@@ -121,7 +207,7 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
       ) : (
         <div>
           {!image ? (
-            <div className="mb-4 w-full h-40 p-4 border-2 border-dashed border-ashGray flex justify-center items-center rounded-lg">
+            <div className="mb-4 w-[32rem] h-40 p-4 border-2 border-dashed border-ashGray flex justify-center items-center rounded-lg">
               <label className="cursor-pointer text-center">
                 <input
                   type="file"
@@ -136,25 +222,48 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <div>
-              <ColorExtractor key={key} src={image} getColors={extractColors} />
               <img
                 src={image}
                 alt="Uploaded"
                 className="mb-8 w-full max-h-96 object-contain"
               />
-              {pickedColors.length > 0 && (
+              {displayedColors.length > 0 && (
                 <div className="flex w-full justify-center space-x-3">
-                  {pickedColors.map((color, index) => (
-                    <div key={index}>
-                      <div
-                        className="w-20 h-20 rounded"
-                        style={{ backgroundColor: color }}
-                      ></div>
-                      <p className="text-base font-medium pt-3 uppercase">
-                        {color}
-                      </p>
-                    </div>
-                  ))}
+                  {displayedColors.map((colorObj, index) => {
+                    const luminance = chroma(colorObj.color).luminance();
+                    return (
+                      <div key={index}>
+                        <div
+                          className="w-20 h-20 rounded"
+                          style={{ backgroundColor: colorObj.color }}
+                        >
+                          <div
+                            className={`flex p-1 justify-between w-full ${
+                              luminance > 0.5 ? "text-black" : "text-white"
+                            }`}
+                          >
+                            <button onClick={() => deleteColor(colorObj.color)}>
+                              <MdDelete />
+                            </button>
+
+                            {/* Lock/Unlock Button */}
+                            <button
+                              onClick={() => {
+                                if (colorObj.locked)
+                                  unlockColor(colorObj.color);
+                                else lockColor(colorObj.color);
+                              }}
+                            >
+                              {colorObj.locked ? <MdLock /> : <MdLockOpen />}
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-base font-medium pt-3 uppercase">
+                          {colorObj.color}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -167,24 +276,24 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
                 </button>
                 <div className="flex gap-8">
                   <button
-                    disabled={pickedColors.length === 10}
-                    onClick={() => addColor(pickedColors)}
+                    disabled={displayedColors.length === 10}
+                    onClick={() => addColor(data)}
                   >
                     <MdAddCircle
                       className={`text-4xl ${
-                        pickedColors.length === 10
+                        displayedColors.length === 10
                           ? "text-gray cursor-not-allowed"
                           : "text-black hover:text-blue-500"
                       }`}
                     />
                   </button>
                   <button
-                    disabled={pickedColors.length === 2}
-                    onClick={() => removeColor(pickedColors)}
+                    disabled={displayedColors.length === 2}
+                    onClick={() => removeColor()}
                   >
                     <MdRemoveCircle
                       className={`text-4xl ${
-                        pickedColors.length === 2
+                        displayedColors.length === 2
                           ? "text-gray cursor-not-allowed"
                           : "text-black hover:text-blue-500"
                       }`}
