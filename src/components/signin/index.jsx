@@ -31,7 +31,6 @@ const index = () => {
         toast.success("Login successful");
         navigate("/")
         Cookies.set('token',response.data.token);
-      
       }
 
     } catch (error) {
