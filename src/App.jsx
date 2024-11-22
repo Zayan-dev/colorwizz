@@ -8,6 +8,7 @@ import {
 // import Navbar from "./components/navbar/index.jsx";
 import Signup from "./components/Signup";
 import Signin from "./components/Signin";
+import SavedPalette from "./components/savepalette/index.jsx"
 import Home from "./components/palette generation/PaletteGen.jsx"; // Example home page
 import "./App.css";
 import Navbar from "./components/navbar/navbar.jsx";
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/" element={<Home mode={mode} />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
+            <Route path="/savedpalette" element={<SavedPalette />} />
             <Route path="/visualizePalette" element={<PaletteVisualizer />} />
           </Routes>
         </div>

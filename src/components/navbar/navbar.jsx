@@ -43,7 +43,7 @@ const Navbar = ({ mode, setMode }) => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/savePalette",
-        {colors},
+        { colors },
         {
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const Navbar = ({ mode, setMode }) => {
   };
 
   return (
-    <div className="w-full fixed top-[4.49rem] bg-white">
+    <div className="w-full z-20 fixed top-[4.49rem] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 h-[4.5rem] flex justify-between items-center border-t border-gray">
         <div className="flex items-center">
           <select
@@ -83,8 +83,6 @@ const Navbar = ({ mode, setMode }) => {
           <p className="text-base m-5 text-stone-800">
             Hit spacebar to generate colors palette
           </p>
-        </div>
-        <div className="flex justify-center items-center space-x-6">
           <RxBorderDotted
             className="text-2xl cursor-pointer"
             onClick={toggleDropdown}
@@ -92,9 +90,9 @@ const Navbar = ({ mode, setMode }) => {
           {dropdownOpen && (
             <div className="border relative z-50 right-12 top-[4.5rem] bg-white shadow-lg rounded-md w-40 p-2">
               <ul className="space-y-2">
-                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
-                  Option 1
-                </li>
+                <Link onClick={() => { setDropdownOpen(!dropdownOpen) }} to="/savedpalette" className="text-stone-800 hover:text-blue-500 cursor-pointer">
+                  Saved Palettes
+                </Link>
                 <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
                   Option 2
                 </li>
@@ -104,6 +102,9 @@ const Navbar = ({ mode, setMode }) => {
               </ul>
             </div>
           )}
+        </div>
+        <div className="flex justify-center items-center space-x-6">
+
           <button
             onClick={() => setPickerModalOpen(true)}
             disabled={isPickerModalOpen}
@@ -117,16 +118,14 @@ const Navbar = ({ mode, setMode }) => {
           </Link>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
-              className={`text-2xl ${
-                canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
-              }`}
+              className={`text-2xl ${canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
+                }`}
             />
           </button>
           <button onClick={redo} disabled={!canRedo}>
             <IoIosRedo
-              className={`text-2xl ${
-                canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
-              }`}
+              className={`text-2xl ${canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
+                }`}
             />
           </button>
           <button

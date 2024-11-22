@@ -3,7 +3,6 @@ import User from "../models/User.js";
 
 export const isUserLoggedIn = async (req, res, next) => {
   try {
-  
     let token = req.body.token || req.headers.authorization?.split(" ")[1]; //token from client browser
 
     if (!token || token === "undefined" || token === null || token === ""){

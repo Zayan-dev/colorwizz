@@ -83,10 +83,10 @@ export const savePalette = async (req, res) => {
     try {
         const user = req.user;
         const colors = req.body.colors
-        if (!user){
-          return res
-            .status(404)
-            .json({ message: "User not sent from middleware" });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "User not sent from middleware" });
         }
 
         const userWithPalette = await User.findOne({
@@ -101,13 +101,59 @@ export const savePalette = async (req, res) => {
         }
 
         const updatedUser = await User.findByIdAndUpdate(
-          user._id,
-          { $push: { savedPalettes: colors } },
-          {new: true}
+            user._id,
+            { $push: { savedPalettes: colors } },
+            { new: true }
         );
 
         return res.status(201).json({ message: "Palette Saved", updatedUser });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getAllPalettes = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "User not sent from middleware" });
+        }
+
+        const userWithPalette = await User.findOne({ _id: user._id });
+        const allSavedPalettes = userWithPalette.savedPalettes;
+        // console.log(allSavedPalettes);
+        return res.status(201).json(allSavedPalettes);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const DeletePalette = async (req, res) => {
+    try {
+        const { index } = req.body
+        const user = req.user;
+        const userId = user._id;
+        const indexToDelete = index;
+
+        await User.updateOne(
+            { _id: userId }, // Find the parent document
+            { $unset: { [`savedPalettes.${indexToDelete}`]: 1 } } // Set the element at the specified index to null
+        ).then(() => {
+            return User.updateOne(
+                { _id: userId },
+                { $pull: { savedPalettes: null } } // Remove all null values from the array
+            );
+        }).then(() => {
+            console.log("Element deleted successfully");
+        }).catch((error) => {
+            console.error("Error deleting element:", error);
+        });
+
+        res.status(200).json({ message: "Palette deleted" });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Internal server error" });
     }
 }
