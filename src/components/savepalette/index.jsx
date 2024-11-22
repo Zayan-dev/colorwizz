@@ -22,10 +22,6 @@ const index = () => {
     const fetchSavePalettes = async () => {
         try {
             const token = Cookies.get("token");
-            if (!token) {
-                navigate("/");
-                return;
-            }
             const response = await axios.get("http://localhost:5000/api/getAllPalettes", {
                 headers: {
                     "Content-Type": "application/json",

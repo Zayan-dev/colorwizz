@@ -24,10 +24,7 @@ const App = () => {
 
   // Only show navbar if the route is not '/signup'
   // const showHeader = location.pathname !== "/signup";
-  const showNavbar =
-    location.pathname !== "/signup" &&
-    location.pathname !== "/signin" &&
-    location.pathname !== "/visualizePalette";
+  const showNavbar = location.pathname == "/"
   return (
     <PaletteProvider>
       <ColorsProvider>

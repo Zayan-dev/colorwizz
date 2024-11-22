@@ -20,7 +20,6 @@ const index = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
     try {
       const response = await axios.post("http://localhost:5000/api/register",
         formData);

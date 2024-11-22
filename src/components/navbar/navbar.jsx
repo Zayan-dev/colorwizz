@@ -9,6 +9,7 @@ import { downloadPalette, drawPalette } from "../options/downloadPalette";
 import { useColors } from "../../contextAPI/colorsContext";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { isLoggedIn, loginOnlyFeature } from "../utils/loginOnlyfeature";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
@@ -39,8 +40,11 @@ const Navbar = ({ mode, setMode }) => {
 
   // Save Palette
   const handleSavePalette = async () => {
-    const token = Cookies.get("token");
+    if (loginOnlyFeature()) {
+      return
+    }
     try {
+      const token = Cookies.get("token");
       const response = await axios.post(
         "http://localhost:5000/api/savePalette",
         { colors },
@@ -83,14 +87,22 @@ const Navbar = ({ mode, setMode }) => {
           <p className="text-base m-5 text-stone-800">
             Hit spacebar to generate colors palette
           </p>
-          <RxBorderDotted
-            className="text-2xl cursor-pointer"
-            onClick={toggleDropdown}
-          />
+          {isLoggedIn() && (
+            <RxBorderDotted
+              className="text-2xl cursor-pointer"
+              onClick={toggleDropdown}
+            />
+          )}
           {dropdownOpen && (
             <div className="border relative z-50 right-12 top-[4.5rem] bg-white shadow-lg rounded-md w-40 p-2">
               <ul className="space-y-2">
-                <Link onClick={() => { setDropdownOpen(!dropdownOpen) }} to="/savedpalette" className="text-stone-800 hover:text-blue-500 cursor-pointer">
+                <Link
+                  onClick={() => {
+                    setDropdownOpen(!dropdownOpen);
+                  }}
+                  to="/savedpalette"
+                  className="text-stone-800 hover:text-blue-500 cursor-pointer"
+                >
                   Saved Palettes
                 </Link>
                 <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
@@ -118,14 +130,16 @@ const Navbar = ({ mode, setMode }) => {
           </Link>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
-              className={`text-2xl ${canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
-                }`}
+              className={`text-2xl ${
+                canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
+              }`}
             />
           </button>
           <button onClick={redo} disabled={!canRedo}>
             <IoIosRedo
-              className={`text-2xl ${canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
-                }`}
+              className={`text-2xl ${
+                canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
+              }`}
             />
           </button>
           <button
