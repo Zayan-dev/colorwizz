@@ -21,7 +21,7 @@ const PaletteGen = ({ mode }) => {
   const { colors, setColors } = useColors();
 
   const [hoverIndex, setHoverIndex] = useState(null);
-  const [paletteColorsCount, setPaletteColorsCount] = useState(5);
+  const [paletteColorsCount, setPaletteColorsCount] = useState(colors.length > 0 ? colors.length : 5);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
   const [colorNames, setColorNames] = useState([]);

@@ -18,7 +18,7 @@ const PaletteVisualizer = () => {
   };
 
   return (
-    <div className="bg-slate-200 h-screen pt-44 px-14 text-center">
+    <div className="bg-slate-100 h-screen pt-24 px-14 text-center">
       <VisualizerCanvas />
       <button
         onClick={downloadImage}

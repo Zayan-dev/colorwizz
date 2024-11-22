@@ -67,7 +67,7 @@ const Navbar = ({ mode, setMode }) => {
 
   return (
     <div className="w-full fixed top-[4.49rem] bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 h-[4.5rem] flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 h-[4.5rem] flex justify-between items-center border-t border-gray">
         <div className="flex items-center">
           <select
             className="px-3 h-12 border border-gray rounded-md text-stone-800"
@@ -110,7 +110,7 @@ const Navbar = ({ mode, setMode }) => {
           >
             <IoCamera className="text-2xl text-black hover:text-blue-500" />
           </button>
-          <Link to='/visualizePalette'>
+          <Link to="/visualizePalette">
             <p className="text-base text-black hover:text-blue-500">
               Palette Visualizer
             </p>
