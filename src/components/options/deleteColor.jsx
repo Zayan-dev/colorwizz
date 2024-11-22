@@ -12,8 +12,8 @@ export  const handleAfterDeleteLockedColors = (lockedColors, index) => {
     if(lockedColors[i]>index){
       afterDeleteLockedColors[i] = lockedColors[i] - 1;
     }
-   else{
-    afterDeleteLockedColors[i] = lockedColors[i];
+    else if (lockedColors[i]<index){
+      afterDeleteLockedColors[i] = lockedColors[i];
     }
   }
   return afterDeleteLockedColors;
