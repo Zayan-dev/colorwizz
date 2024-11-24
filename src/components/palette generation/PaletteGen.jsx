@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { BiSolidColor } from "react-icons/bi";
-import { FaLock } from "react-icons/fa";
-import { FaLockOpen } from "react-icons/fa";
+import { FaLock, FaLockOpen } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import chroma from 'chroma-js';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { handleAddColor, handleUpdatedLockedColors } from '../options/addColor';
 import { deleteColor, handleAfterDeleteLockedColors } from "../options/deleteColor";
 import { handleColorChange, handleColorPickEnd, handleCopy, updateColorNames } from "../options/colorPicker";
@@ -16,10 +14,11 @@ import { generatePaletteColors } from "../options/generatePalette";
 import { useColors } from "../../contextAPI/colorsContext";
 
 const PaletteGen = ({ mode }) => {
+  // Custom Context apis
   const { savePaletteToHistory, currentPalette } = usePalette();
-
   const { colors, setColors } = useColors();
 
+  // Component state
   const [hoverIndex, setHoverIndex] = useState(null);
   const [paletteColorsCount, setPaletteColorsCount] = useState(colors.length > 0 ? colors.length : 5);
   const [draggedIndex, setDraggedIndex] = useState(null);
@@ -27,20 +26,23 @@ const PaletteGen = ({ mode }) => {
   const [colorNames, setColorNames] = useState([]);
   const [showShades, setShowShades] = useState({ color: "", index: null }); // Show/hide shades panel
 
+  // Use references
   const prevColorsRef = useRef(colors);
   const isInitialRender = useRef(true); // Track initial render
 
+  // undo redo, currentpalette
   useEffect(() => {
     if (currentPalette.length) {
       setColors(currentPalette); // Set colors to the current palette in history
     }
   }, [currentPalette]);
 
+  // Update paletteColorsCount whenever colors state changes
   useEffect(() => {
-    // Update paletteColorsCount whenever colors state changes
     setPaletteColorsCount(colors.length);
   }, [colors]);
 
+  // Generate palette on hitting space bar
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === "Space") {
@@ -54,6 +56,7 @@ const PaletteGen = ({ mode }) => {
     };
   }, [mode, lockedColors, paletteColorsCount]);
 
+  // Initial palette generation
   useEffect(() => {
     const initialPalette = generatePaletteColors(
       mode,
@@ -71,7 +74,7 @@ const PaletteGen = ({ mode }) => {
       savePaletteToHistory(initialPalette); // Save new palettes on mode change
     }
   }, [mode, isInitialRender]);
-
+  
   useEffect(() => {
     const updatedNames = updateColorNames(colors, colorNames, prevColorsRef);
     setColorNames(updatedNames);
@@ -227,7 +230,6 @@ const PaletteGen = ({ mode }) => {
           colorInfo={showShades}
         ></ViewShades>
       )}
-      {/* <ToastContainer /> */}
     </div>
   );
 };

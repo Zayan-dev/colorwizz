@@ -16,5 +16,4 @@ export const addToHistoryIfUnique = (history, newArray, onUnique) => {
   if (!exists) {
     onUnique(newArray);
   }
-  console.table(history)
 };

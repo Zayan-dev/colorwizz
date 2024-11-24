@@ -5,7 +5,6 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-// import Navbar from "./components/navbar/index.jsx";
 import Signup from "./components/Signup";
 import Signin from "./components/Signin";
 import SavedPalette from "./components/savepalette/index.jsx"
@@ -13,10 +12,11 @@ import Home from "./components/palette generation/PaletteGen.jsx"; // Example ho
 import "./App.css";
 import Navbar from "./components/navbar/navbar.jsx";
 import Header from "./components/navbar/header.jsx";
+import PaletteVisualizer from "./pages/visualizePalette/index.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { PaletteProvider } from "./contextAPI/PaletteHistoryContext.jsx";
 import { ColorsProvider } from "./contextAPI/colorsContext.jsx";
-import { ToastContainer } from "react-toastify";
-import PaletteVisualizer from "./pages/visualizePalette/index.jsx";
 
 const App = () => {
   const [mode, setMode] = useState("monochromatic");
@@ -26,23 +26,23 @@ const App = () => {
   // const showHeader = location.pathname !== "/signup";
   const showNavbar = location.pathname == "/"
   return (
-    <PaletteProvider>
-      <ColorsProvider>
-        <div>
-          <ToastContainer />
+      <PaletteProvider>
+        <ColorsProvider>
+          <div>
+            <ToastContainer />
 
-          <Header />
-          {showNavbar && <Navbar mode={mode} setMode={setMode} />}
-          <Routes>
-            <Route path="/" element={<Home mode={mode} />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signin" element={<Signin />} />
-            <Route path="/savedpalette" element={<SavedPalette />} />
-            <Route path="/visualizePalette" element={<PaletteVisualizer />} />
-          </Routes>
-        </div>
-      </ColorsProvider>
-    </PaletteProvider>
+            <Header />
+            {showNavbar && <Navbar mode={mode} setMode={setMode} />}
+            <Routes>
+              <Route path="/" element={<Home mode={mode} />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/signin" element={<Signin />} />
+              <Route path="/savedpalette" element={<SavedPalette />} />
+              <Route path="/visualizePalette" element={<PaletteVisualizer />} />
+            </Routes>
+          </div>
+        </ColorsProvider>
+      </PaletteProvider>
   );
 };
 

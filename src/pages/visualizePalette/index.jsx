@@ -1,11 +1,9 @@
-import React, { useState } from "react";
-import { useColors } from "../../contextAPI/colorsContext";
+import React from "react";
 import VisualizerCanvas from "../../components/visualizerCanvas/visualizerCanvas";
 
 import html2canvas from "html2canvas";
 
 const PaletteVisualizer = () => {
-  const { colors } = useColors();
 
   const downloadImage = () => {
     const element = document.getElementById("palette-visualizer");
@@ -22,7 +20,7 @@ const PaletteVisualizer = () => {
       <VisualizerCanvas />
       <button
         onClick={downloadImage}
-        className="px-4 py-2 bg-blue-500 text-white rounded"
+        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-200"
       >
         Download
       </button>
