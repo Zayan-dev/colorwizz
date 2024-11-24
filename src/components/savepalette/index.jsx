@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { MdDelete } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { toast } from 'react-toastify';
-import { useColors } from '../../contextAPI/colorsContext';
 import { usePalette } from '../../contextAPI/PaletteHistoryContext';
+import { urlParameters } from '../utils/reusablefunctions';
 
 const index = () => {
     const [palettes, setPalettes] = useState([]);
@@ -17,7 +17,6 @@ const index = () => {
     const navigate = useNavigate();
 
     const { savePaletteToHistory } = usePalette()
-    const { setColors } = useColors();
 
     const fetchSavePalettes = async () => {
         try {
@@ -74,9 +73,8 @@ const index = () => {
     };
 
     const handleOpen = (e, selectedPalette) => {
-        navigate("/");
         e.preventDefault();
-        setColors(selectedPalette);
+        navigate(`/${urlParameters(selectedPalette)}`);
         savePaletteToHistory(selectedPalette);
     }
 
@@ -144,9 +142,8 @@ const index = () => {
               <div className="text-center">
                 <button
                   onClick={() => {
-                    setColors(selectedPalette);
                     savePaletteToHistory(selectedPalette);
-                    navigate("/");
+                    navigate(`/${urlParameters(selectedPalette)}`);
                   }}
                   className="px-4 py-2 mt-8 bg-blue-500 text-white rounded"
                 >

@@ -1,9 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { BiSolidColor } from "react-icons/bi";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+
 import chroma from 'chroma-js';
 import { toast } from 'react-toastify';
+
 import { handleAddColor, handleUpdatedLockedColors } from '../options/addColor';
 import { deleteColor, handleAfterDeleteLockedColors } from "../options/deleteColor";
 import { handleColorChange, handleColorPickEnd, handleCopy, updateColorNames } from "../options/colorPicker";
@@ -11,16 +15,22 @@ import { handleDrop, toggleLockColor } from "../options/dragAndLock";
 import ViewShades from "../options/viewShades";
 import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import { generatePaletteColors } from "../options/generatePalette";
-import { useColors } from "../../contextAPI/colorsContext";
+import { urlParameters, urlColorsParsing } from "../utils/reusablefunctions";
 
 const PaletteGen = ({ mode }) => {
+  
+  const { palette } = useParams(); // Extract palette from URL
+  const navigate = useNavigate();
+  
   // Custom Context apis
-  const { savePaletteToHistory, currentPalette } = usePalette();
-  const { colors, setColors } = useColors();
-
+  const { savePaletteToHistory } = usePalette();
+  
   // Component state
+  const [colors, setColors] = useState([]);
   const [hoverIndex, setHoverIndex] = useState(null);
-  const [paletteColorsCount, setPaletteColorsCount] = useState(colors.length > 0 ? colors.length : 5);
+  const [paletteColorsCount, setPaletteColorsCount] = useState(
+    colors.length > 1 ? colors.length : 5
+  );
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [lockedColors, setLockedColors] = useState([]); // Tracks locked color indexes
   const [colorNames, setColorNames] = useState([]);
@@ -32,15 +42,49 @@ const PaletteGen = ({ mode }) => {
 
   // undo redo, currentpalette
   useEffect(() => {
-    if (currentPalette.length) {
-      setColors(currentPalette); // Set colors to the current palette in history
+    if (palette) {
+      setColors(urlColorsParsing(palette)); // Set colors to the current palette in history
     }
-  }, [currentPalette]);
+  }, [palette]);
 
   // Update paletteColorsCount whenever colors state changes
   useEffect(() => {
     setPaletteColorsCount(colors.length);
   }, [colors]);
+
+  // Initial palette generation
+  const generatePalette = () => {
+    const newColors = generatePaletteColors(
+      mode,
+      paletteColorsCount,
+      colors,
+      lockedColors
+    );
+    setColors(newColors);
+    savePaletteToHistory(newColors);
+    const paletteUrl = urlParameters(newColors);
+    navigate(`/${paletteUrl}`);
+  };
+
+  useEffect(() => {
+    if (palette && isInitialRender.current) {
+      isInitialRender.current = false;
+      // Parse colors from URL
+      const parsedColors = urlColorsParsing(palette);
+      setColors(parsedColors);
+      savePaletteToHistory(parsedColors);
+    } else {
+      // Generate a new palette and update URL if no palette is in URL
+      if (isInitialRender.current) {
+        // App started
+        isInitialRender.current = false;
+        generatePalette();
+      }
+      // App is not started but mode changed
+      else if (colors.length && !isInitialRender.current)
+        generatePalette();
+    }
+  }, [mode, isInitialRender]);
 
   // Generate palette on hitting space bar
   useEffect(() => {
@@ -56,37 +100,13 @@ const PaletteGen = ({ mode }) => {
     };
   }, [mode, lockedColors, paletteColorsCount]);
 
-  // Initial palette generation
-  useEffect(() => {
-    const initialPalette = generatePaletteColors(
-      mode,
-      paletteColorsCount,
-      colors,
-      lockedColors
-    ); // Initial colors
-    // Only save to history on the first render or if the palette changes
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      setColors(initialPalette);
-      savePaletteToHistory(initialPalette); // Only save the initial palette on first render
-    } else if (currentPalette.length && !isInitialRender.current) {
-      setColors(initialPalette);
-      savePaletteToHistory(initialPalette); // Save new palettes on mode change
-    }
-  }, [mode, isInitialRender]);
-  
+  // For changing the names of colors, color picker
   useEffect(() => {
     const updatedNames = updateColorNames(colors, colorNames, prevColorsRef);
     setColorNames(updatedNames);
   }, [colors]);
 
-
-  const generatePalette = () => {
-    const newColors = generatePaletteColors(mode, paletteColorsCount, colors, lockedColors); // Your palette generation logic
-    setColors(newColors);
-    savePaletteToHistory(newColors);
-  };
-
+  // Open shades modal and change shade
   const handleShades = (color, index) => {
     setShowShades({ color: color, index: index });
   };
@@ -100,6 +120,7 @@ const PaletteGen = ({ mode }) => {
     });
     setShowShades(false);
   };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row h-screen w-full pt-36">
@@ -177,10 +198,11 @@ const PaletteGen = ({ mode }) => {
               {paletteColorsCount > 2 && (
                 <button
                   onClick={() => {
-                    setColors(deleteColor(color, colors))
-                    setLockedColors(handleAfterDeleteLockedColors(lockedColors, index))
-                  }
-                  }
+                    setColors(deleteColor(color, colors));
+                    setLockedColors(
+                      handleAfterDeleteLockedColors(lockedColors, index)
+                    );
+                  }}
                   className="pt-4 text-2xl"
                   style={{ color: textColor }}
                 >
@@ -207,8 +229,12 @@ const PaletteGen = ({ mode }) => {
                           lockedColors
                         );
                         setColors(updatedColors);
-                        const updatedLockedColors = handleUpdatedLockedColors(colors, lockedColors, index)
-                        setLockedColors(updatedLockedColors)
+                        const updatedLockedColors = handleUpdatedLockedColors(
+                          colors,
+                          lockedColors,
+                          index
+                        );
+                        setLockedColors(updatedLockedColors);
                       }}
                       className="absolute transform -translate-y-1/2 bg-white rounded-full w-12 h-12 text-black z-10"
                       style={{ top: "50%" }}

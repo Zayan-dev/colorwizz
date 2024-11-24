@@ -1,40 +1,56 @@
 import React, { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { urlParameters } from "../components/utils/reusablefunctions";
 
 // Create a context
 const PaletteContext = createContext();
 
 // Create a provider component
 export const PaletteProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [paletteHistory, setPaletteHistory] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const savePaletteToHistory = (newPalette) => {
-    setPaletteHistory((prevHistory) => {
-      const updatedHistory = [...prevHistory, newPalette];
-      setCurrentIndex(updatedHistory.length - 1);
-      return updatedHistory;
-    });
+    const sortedNewPalette = [...newPalette].sort();
+    const exists = paletteHistory.some(
+      (arr) =>
+        arr.length === sortedNewPalette.length &&
+        [...arr].sort().every((str, index) => str === sortedNewPalette[index])
+    );
+
+    if (!exists) {
+      setPaletteHistory((prevHistory) => {
+        const updatedHistory = [
+          ...prevHistory,
+          newPalette,
+        ];
+        setCurrentIndex(updatedHistory.length - 1); // Update currentIndex to the latest palette
+        return updatedHistory;
+      });
+    }
   };
 
   const undo = () => {
     if (currentIndex > 0) {
+      const paletteUrl = urlParameters(paletteHistory[currentIndex - 1]);
+      navigate(`/${paletteUrl}`);
       setCurrentIndex(currentIndex - 1);
     }
   };
 
   const redo = () => {
     if (currentIndex < paletteHistory.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      const paletteUrl = urlParameters(paletteHistory[currentIndex + 1]);
+      navigate(`/${paletteUrl}`);
+      setCurrentIndex(currentIndex + 1); 
     }
   };
-
-  const currentPalette = paletteHistory[currentIndex] || [];
 
   return (
     <PaletteContext.Provider
       value={{
         paletteHistory,
-        currentPalette,
         savePaletteToHistory,
         undo,
         redo,

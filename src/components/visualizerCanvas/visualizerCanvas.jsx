@@ -1,8 +1,10 @@
 import React from "react";
-import { useColors } from "../../contextAPI/colorsContext";
+import { useParams } from "react-router-dom";
+import { urlColorsParsing } from "../utils/reusablefunctions";
 
 const VisualizerCanvas = () => {
-  const { colors } = useColors();
+  const { palette } = useParams();
+  const colors = urlColorsParsing(palette)
 
   return (
     <div
