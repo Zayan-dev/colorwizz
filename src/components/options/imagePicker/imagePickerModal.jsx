@@ -183,7 +183,7 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
               setColors(getColorValues(displayedColors));
               savePaletteToHistory(getColorValues(displayedColors));
             }}
-            className="bg-blue-500 hover:bg-blue-800 text-white px-4 py-2 rounded dropdown"
+            className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md dropdown"
           >
             Open
           </button>
@@ -215,7 +215,7 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
                   onChange={handleImageUpload}
                   className="hidden"
                 />
-                <div className="bg-blue-500 text-white text-lg hover:bg-blue-800 px-5 py-2 rounded hover:bg-champagnePink">
+                <div className="bg-blue-500 text-white text-lg hover:bg-blue-700 px-5 py-2 rounded-md hover:bg-champagnePink">
                   Browse file
                 </div>
               </label>
@@ -270,7 +270,7 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
               <div className="flex justify-between items-center pt-10">
                 <button
                   onClick={changePalette}
-                  className="bg-blue-500 text-white text-lg px-4 py-2 rounded"
+                  className="bg-blue-500 hover:bg-blue-700 transition duration-200 rounded-md text-white text-lg px-4 py-2"
                 >
                   Change Palette
                 </button>

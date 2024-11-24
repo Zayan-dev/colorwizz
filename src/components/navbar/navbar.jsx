@@ -12,13 +12,14 @@ import Cookies from "js-cookie";
 import { isLoggedIn, loginOnlyFeature } from "../utils/loginOnlyfeature";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { addToHistoryIfUnique } from "../utils/addToHistory";
 
 const Navbar = ({ mode, setMode }) => {
   // Image Picker
   const [isPickerModalOpen, setPickerModalOpen] = useState(false);
 
   // Undo Redo
-  const { undo, redo, currentIndex, paletteHistory } = usePalette();
+  const { undo, redo, currentIndex, paletteHistory, savePaletteToHistory } = usePalette();
   const { colors } = useColors();
   const canUndo = currentIndex > 0;
   const canRedo = currentIndex < paletteHistory.length - 1;
@@ -72,7 +73,7 @@ const Navbar = ({ mode, setMode }) => {
   return (
     <div className="w-full z-20 fixed top-[4.49rem] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 h-[4.5rem] flex justify-between items-center border-t border-gray">
-        <div className="flex items-center">
+        <div className="flex items-center h-full">
           <select
             className="px-3 h-12 border border-gray rounded-md text-stone-800"
             value={mode}
@@ -89,41 +90,36 @@ const Navbar = ({ mode, setMode }) => {
           </p>
           {isLoggedIn() && (
             <RxBorderDotted
-              className="text-2xl cursor-pointer"
+              className="ml-8 text-3xl font-bold cursor-pointer hover:text-blue-500"
               onClick={toggleDropdown}
             />
           )}
           {dropdownOpen && (
-            <div className="border relative z-50 right-12 top-[4.5rem] bg-white shadow-lg rounded-md w-40 p-2">
+            <div className="border border-gray relative right-12 top-16 bg-white shadow-lg rounded-md w-40 p-2">
               <ul className="space-y-2">
                 <Link
                   onClick={() => {
                     setDropdownOpen(!dropdownOpen);
                   }}
                   to="/savedpalette"
-                  className="text-stone-800 hover:text-blue-500 cursor-pointer"
+                  className="hover:text-blue-500 cursor-pointer"
                 >
                   Saved Palettes
                 </Link>
-                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
-                  Option 2
-                </li>
-                <li className="text-stone-800 hover:text-blue-500 cursor-pointer">
-                  Option 3
-                </li>
+                <li className="hover:text-blue-500 cursor-pointer">Option 2</li>
+                <li className="hover:text-blue-500 cursor-pointer">Option 3</li>
               </ul>
             </div>
           )}
         </div>
         <div className="flex justify-center items-center space-x-6">
-
           <button
             onClick={() => setPickerModalOpen(true)}
             disabled={isPickerModalOpen}
           >
             <IoCamera className="text-2xl text-black hover:text-blue-500" />
           </button>
-          <Link to="/visualizePalette">
+          <Link to="/visualizePalette" onClick={() => addToHistoryIfUnique(paletteHistory, colors, savePaletteToHistory)}>
             <p className="text-base text-black hover:text-blue-500">
               Palette Visualizer
             </p>
@@ -144,14 +140,14 @@ const Navbar = ({ mode, setMode }) => {
           </button>
           <button
             onClick={handlePaletteDownload}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-200"
           >
             Download
           </button>
           <div>
             <button
               onClick={handleSavePalette}
-              className="flex justify-center items-center p-1 gap-1 text-center"
+              className="flex justify-center items-center p-1 gap-1 text-center hover:text-blue-500 transition duration-200"
             >
               <p>Save</p> <CiHeart className="text-2xl" />
             </button>
