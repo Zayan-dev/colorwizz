@@ -1,16 +1,15 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { toast } from "react-toastify";
 import { isLoggedIn } from "../utils/loginOnlyfeature";
 
-const Header = () => {
-  const navigate = useNavigate();
+const Header = ({key, setHeaderKey}) => {
   const handleLogout=()=>{
     if (isLoggedIn()) {
       Cookies.remove("token", { path: "/" });
       toast.success("Logout Successful");
-      navigate("/");
+      setHeaderKey((prevKey) => prevKey + 1);
     }
   }
   return (

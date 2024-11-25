@@ -34,7 +34,7 @@ export const PaletteProvider = ({ children }) => {
   const undo = () => {
     if (currentIndex > 0) {
       const paletteUrl = urlParameters(paletteHistory[currentIndex - 1]);
-      navigate(`/${paletteUrl}`);
+      navigate(`/${paletteUrl}`, { replace: true });
       setCurrentIndex(currentIndex - 1);
     }
   };
@@ -42,7 +42,7 @@ export const PaletteProvider = ({ children }) => {
   const redo = () => {
     if (currentIndex < paletteHistory.length - 1) {
       const paletteUrl = urlParameters(paletteHistory[currentIndex + 1]);
-      navigate(`/${paletteUrl}`);
+      navigate(`/${paletteUrl}`, { replace: true });
       setCurrentIndex(currentIndex + 1); 
     }
   };

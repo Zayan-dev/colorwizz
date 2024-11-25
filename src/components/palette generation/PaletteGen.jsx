@@ -63,7 +63,7 @@ const PaletteGen = ({ mode }) => {
     setColors(newColors);
     savePaletteToHistory(newColors);
     const paletteUrl = urlParameters(newColors);
-    navigate(`/${paletteUrl}`);
+    navigate(`/${paletteUrl}`, { replace: true });
   };
 
   useEffect(() => {

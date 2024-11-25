@@ -21,8 +21,8 @@ const App = () => {
   const [mode, setMode] = useState("monochromatic");
   const location = useLocation();
 
-  // Only show navbar if the route is not '/signup'
-  // const showHeader = location.pathname !== "/signup";
+  const [headerKey, setHeaderKey] = useState(0);
+
   const showNavbar =
     location.pathname === "/" ||
     (location.pathname.startsWith("/") &&
@@ -33,7 +33,7 @@ const App = () => {
       <div>
         <ToastContainer />
 
-        <Header />
+        <Header key={headerKey} setHeaderKey={setHeaderKey} />
         {showNavbar && <Navbar mode={mode} setMode={setMode} />}
         <Routes>
           <Route path="/" element={<Home mode={mode} />} />
@@ -41,7 +41,10 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/savedpalette" element={<SavedPalette />} />
-          <Route path="/visualizePalette/:palette" element={<PaletteVisualizer />} />
+          <Route
+            path="/visualizePalette/:palette"
+            element={<PaletteVisualizer />}
+          />
         </Routes>
       </div>
     </PaletteProvider>

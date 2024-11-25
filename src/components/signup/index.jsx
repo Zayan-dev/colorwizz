@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
 
 const index = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ const index = () => {
     phone: '',
     gender: '',
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -26,6 +28,7 @@ const index = () => {
 
       if (response.status === 201) {
         toast.success("Sign up Successfully");
+        navigate("/signup");
       }
 
     } catch (error) {

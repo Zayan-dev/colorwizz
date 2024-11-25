@@ -181,7 +181,7 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
           <button
             onClick={() => {
               onClose();
-              navigate(`${urlParameters(getColorValues(displayedColors))}`)
+              navigate(`${urlParameters(getColorValues(displayedColors))}`, { replace: true })
               savePaletteToHistory(getColorValues(displayedColors));
             }}
             className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md dropdown"

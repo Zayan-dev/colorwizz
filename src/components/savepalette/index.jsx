@@ -28,7 +28,7 @@ const index = () => {
                 }
             });
             if (response.status === 404) {
-                navigate("/");
+                navigate(-1);
             }
             setPalettes(response.data);
         } catch (error) {
@@ -74,7 +74,7 @@ const index = () => {
 
     const handleOpen = (e, selectedPalette) => {
         e.preventDefault();
-        navigate(`/${urlParameters(selectedPalette)}`);
+        navigate(`/${urlParameters(selectedPalette)}`, { replace: true });
         savePaletteToHistory(selectedPalette);
     }
 
@@ -143,7 +143,7 @@ const index = () => {
                 <button
                   onClick={() => {
                     savePaletteToHistory(selectedPalette);
-                    navigate(`/${urlParameters(selectedPalette)}`);
+                    navigate(`/${urlParameters(selectedPalette)}`, { replace: true });
                   }}
                   className="px-4 py-2 mt-8 bg-blue-500 text-white rounded"
                 >
