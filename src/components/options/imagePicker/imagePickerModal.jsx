@@ -157,12 +157,11 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
 
   return (
     <Modal
-      appElement={document.getElementById("root")}
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="bg-white py-4 px-8 z-50 rounded-lg max-w-fit mx-auto mt-32 my-10 outline-none shadow-lg"
+      className="bg-white py-4 px-8 z-50 rounded-lg max-w-fit mx-auto my-10 outline-none shadow-lg"
       overlayClassName={{
-        base: "fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto ", // Custom styles for the overlay
+        base: "fixed inset-0 bg-black bg-opacity-30 z-50 overflow-y-auto flex justify-center items-center", // Custom styles for the overlay
         afterOpen: "opacity-100",
         beforeClose: "opacity-0",
       }}
@@ -181,7 +180,9 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
           <button
             onClick={() => {
               onClose();
-              navigate(`${urlParameters(getColorValues(displayedColors))}`, { replace: true })
+              navigate(`${urlParameters(getColorValues(displayedColors))}`, {
+                replace: true,
+              });
               savePaletteToHistory(getColorValues(displayedColors));
             }}
             className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md dropdown"
