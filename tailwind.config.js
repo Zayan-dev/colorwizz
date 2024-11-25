@@ -8,6 +8,10 @@ export default {
         darkGray: "#94a3b8",
         black: "#000000",
       },
+      fontFamily: {
+        heading: ['"Montserrat"', "sans-serif"],
+        body: ['"NotoSans"', "sans-serif"],
+      },
     },
   },
   plugins: [],
