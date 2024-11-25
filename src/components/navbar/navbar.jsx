@@ -9,7 +9,6 @@ import { RxBorderDotted } from "react-icons/rx";
 import ImagePickerModal from "../options/imagePicker/imagePickerModal";
 import { isLoggedIn, loginOnlyFeature } from "../utils/loginOnlyfeature";
 import { downloadPalette, drawPalette } from "../options/downloadPalette";
-import { urlColorsParsing } from "../utils/reusablefunctions";
 
 import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 
@@ -105,15 +104,17 @@ const Navbar = ({ mode, setMode }) => {
           {dropdownOpen && (
             <div className="border border-gray relative right-12 top-16 bg-white shadow-lg rounded-md w-40 p-2">
               <ul className="space-y-2">
-                <Link
+                <a
                   onClick={() => {
                     setDropdownOpen(!dropdownOpen);
                   }}
-                  to="/savedpalette"
+                  href="/savedpalette"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-blue-500 cursor-pointer"
                 >
                   Saved Palettes
-                </Link>
+                </a>
                 <li className="hover:text-blue-500 cursor-pointer">Option 2</li>
                 <li className="hover:text-blue-500 cursor-pointer">Option 3</li>
               </ul>
@@ -127,11 +128,14 @@ const Navbar = ({ mode, setMode }) => {
           >
             <IoCamera className="text-2xl text-black hover:text-blue-500" />
           </button>
-          <Link to={`/visualizePalette/${location.pathname.substring(1)}`}>
-            <p className="text-base text-black hover:text-blue-500">
-              Palette Visualizer
-            </p>
-          </Link>
+          <a
+            href={`/visualizePalette/${location.pathname.substring(1)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-base text-black hover:text-blue-500"
+          >
+            Palette Visualizer
+          </a>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
               className={`text-2xl ${
