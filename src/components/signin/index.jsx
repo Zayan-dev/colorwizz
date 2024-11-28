@@ -32,6 +32,13 @@ const Signin = ({ isOpen, onClose, updateHeader }) => {
         // Cookies.set('token',response.data.token,{ expires: isRememberMe ? 7 : 1 , secure: true, sameSite: 'strict', path: '/' });
         toast.success("Login successful");
         Cookies.set("token", response.data.token);
+        // console.log(response.data.plan);
+        // if (response.data.token.plan == "free") {
+        //   toast.success("Free wala");
+        // }
+        // else if (response.data.token.plan == "premium") {
+        //   toast.success("premium wala");
+        // }
         updateHeader();
         onClose();
       }

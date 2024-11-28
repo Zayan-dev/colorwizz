@@ -18,13 +18,13 @@ import { generatePaletteColors } from "../options/generatePalette";
 import { urlParameters, urlColorsParsing } from "../utils/reusablefunctions";
 
 const PaletteGen = ({ mode }) => {
-  
+
   const { palette } = useParams(); // Extract palette from URL
   const navigate = useNavigate();
-  
+
   // Custom Context apis
   const { savePaletteToHistory } = usePalette();
-  
+
   // Component state
   const [colors, setColors] = useState([]);
   const [hoverIndex, setHoverIndex] = useState(null);

@@ -53,6 +53,7 @@ const Navbar = ({ mode, setMode }) => {
     }
     try {
       const token = Cookies.get("token");
+      console.log(token.plan);
       const response = await axios.post(
         "http://localhost:5000/api/savePalette",
         { colors },

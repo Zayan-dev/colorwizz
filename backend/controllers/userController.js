@@ -42,7 +42,7 @@ export const signIn = async (req, res) => {
         bcrypt.compare(password, user.password, function (error, result) {
             if (error) return res.status(500).json({ message: error.message });
             if (result == true) {
-                const token = jwt.sign({ uId: user._id }, process.env.SECRET);
+                const token = jwt.sign({ uId: user._id, plan: user.subscriptionPlan }, process.env.SECRET);
                 // console.log(token);
                 // Set the token as a cookie
                 // res.cookie("token", token, {
@@ -156,4 +156,24 @@ export const DeletePalette = async (req, res) => {
     catch (error) {
         res.status(500).json({ message: "Internal server error" });
     }
+}
+
+export const checkPlan = async (req, res) => {
+    try {
+        // console.log("sdssdf");
+        const user = req.user;
+        const plan = "";
+        if (user.subscriptionPlan == "free") {
+            plan = "free";
+            res.status(200).json({ message: "free person", plan: plan });
+        }
+        else {
+            plan = "premium";
+            res.status(200).json({ message: "premium person", plan: plan });
+        }
+
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+
 }

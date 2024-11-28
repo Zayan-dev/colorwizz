@@ -11,6 +11,15 @@ const userSchema = new Schema(
       type: [[String]], // Array of arrays of strings
       default: [], // Optional: default to an empty array
     },
+    subscriptionPlan: {
+      type: String,
+      enum: ['free', 'premium'],
+      default: 'free',
+    },
+    subscriptionExpiry: {
+      type: Date,
+      default: null, // Explicitly set default to null
+    },
   },
   { timestamps: true }
 );
