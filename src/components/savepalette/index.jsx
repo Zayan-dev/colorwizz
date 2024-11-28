@@ -6,21 +6,23 @@ import { useNavigate } from 'react-router-dom';
 import { MdDelete } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { toast } from 'react-toastify';
-import { useColors } from '../../contextAPI/colorsContext';
+import { ColorRing } from "react-loader-spinner";
 import { usePalette } from '../../contextAPI/PaletteHistoryContext';
+import { urlParameters } from '../utils/reusablefunctions';
 
 const index = () => {
     const [palettes, setPalettes] = useState([]);
+    const [palettesLoading, setPalettesLoading] = useState(false);
     const [selectedPalette, setSelectedPalette] = useState(null);
     const [index, setIndex] = useState(null);
 
     const navigate = useNavigate();
 
     const { savePaletteToHistory } = usePalette()
-    const { setColors } = useColors();
 
     const fetchSavePalettes = async () => {
         try {
+            setPalettesLoading(true);
             const token = Cookies.get("token");
             const response = await axios.get("http://localhost:5000/api/getAllPalettes", {
                 headers: {
@@ -29,9 +31,14 @@ const index = () => {
                 }
             });
             if (response.status === 404) {
-                navigate("/");
+                navigate(`/${urlParameters(selectedPalette)}`, {
+                  replace: true,
+                });
             }
-            setPalettes(response.data);
+            if (response.data) {
+              setPalettesLoading(false);
+              setPalettes(response.data);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -74,35 +81,52 @@ const index = () => {
     };
 
     const handleOpen = (e, selectedPalette) => {
-        navigate("/");
         e.preventDefault();
-        setColors(selectedPalette);
+        navigate(`/${urlParameters(selectedPalette)}`, { replace: true });
         savePaletteToHistory(selectedPalette);
     }
 
-    return (
-      <div className="p-[7rem] z-0 relative top-20 grid grid-cols-3 gap-8">
-        {palettes.length > 0 &&
-          palettes.map((palette, index) => (
-            <div
-              key={index}
-              className="h-40 w-full bg-gray-200 rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
-              onClick={() => handlePaletteClick(palette, index)}
-            >
-              <div className=" relative h-full flex">
-                {palette.map((color, i) => {
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1"
-                      style={{ backgroundColor: color }}
-                    ></div>
-                  );
-                })}
-              </div>
+    return palettesLoading ? (
+      <div className="flex h-screen justify-center items-center">
+        <ColorRing
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="color-ring-loading"
+          wrapperStyle={{}}
+          wrapperClass="color-ring-wrapper"
+          colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+        />
+      </div>
+    ) : (
+      <div className='h-screen p-28'>
+        {palettes.length > 0 && (
+          <>
+            <h1 className="text-2xl font-medium">Your saved palettes</h1>
+            <div className="z-0 relative top-12 grid grid-cols-3 gap-8">
+              {palettes.map((palette, index) => (
+                <div
+                  key={index}
+                  className="h-40 w-full bg-gray-200 rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                  onClick={() => handlePaletteClick(palette, index)}
+                >
+                  <div className=" relative h-full flex">
+                    {palette.map((color, i) => {
+                      return (
+                        <div
+                          key={i}
+                          className="flex-1"
+                          style={{ backgroundColor: color }}
+                        ></div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-
+          </>
+        )}
+        
         {palettes.length == 0 && (
           <h1 className="text-2xl">No saved palettes</h1>
         )}
@@ -144,9 +168,10 @@ const index = () => {
               <div className="text-center">
                 <button
                   onClick={() => {
-                    setColors(selectedPalette);
                     savePaletteToHistory(selectedPalette);
-                    navigate("/");
+                    navigate(`/${urlParameters(selectedPalette)}`, {
+                      replace: true,
+                    });
                   }}
                   className="px-4 py-2 mt-8 bg-blue-500 text-white rounded"
                 >

@@ -14,6 +14,14 @@ export const shuffleArray = (array, lockedColors) => {
   return array;
 };
 
+export const urlParameters = (colors) => {
+  return colors.map((color) => color.replace("#", "")).join("-");
+}
+
+export const urlColorsParsing = (params) => {
+  return params.split("-").map((color) => `#${color}`);
+};
+
 
   // useEffect(() => {
     //   const updatedNames = [...colorNames];

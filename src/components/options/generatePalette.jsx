@@ -4,7 +4,7 @@ import { analogousColors } from "../paletteTypes/analogous";
 import { monochromaticColors } from "../paletteTypes/monochromatic";
 import { triadicColors } from "../paletteTypes/triadic";
 
-import { shuffleArray } from "../utils/shuffleArray";
+import { shuffleArray } from "../utils/reusablefunctions";
 
 export const generatePaletteColors = (
   mode,

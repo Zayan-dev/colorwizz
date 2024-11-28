@@ -1,26 +1,33 @@
 import React, { useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
 import { IoCamera } from "react-icons/io5";
 import { CiHeart } from "react-icons/ci";
 import { RxBorderDotted } from "react-icons/rx";
+
 import ImagePickerModal from "../options/imagePicker/imagePickerModal";
-import { usePalette } from "../../contextAPI/PaletteHistoryContext";
+import { isLoggedIn, loginOnlyFeature } from "../utils/loginOnlyfeature";
 import { downloadPalette, drawPalette } from "../options/downloadPalette";
-import { useColors } from "../../contextAPI/colorsContext";
+
+import { usePalette } from "../../contextAPI/PaletteHistoryContext";
+
 import axios from "axios";
 import Cookies from "js-cookie";
-import { isLoggedIn, loginOnlyFeature } from "../utils/loginOnlyfeature";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
-import { addToHistoryIfUnique } from "../utils/addToHistory";
 
 const Navbar = ({ mode, setMode }) => {
-  // Image Picker
+  // Accessing url colors
+  const location = useLocation();
+  const colors = location.pathname.startsWith("/")
+    ? location.pathname.substring(1).split("-").map((color) => `#${color}`)
+    : [];
+
+  // Image Picker modal state
   const [isPickerModalOpen, setPickerModalOpen] = useState(false);
 
   // Undo Redo
-  const { undo, redo, currentIndex, paletteHistory, savePaletteToHistory } = usePalette();
-  const { colors } = useColors();
+  const { undo, redo, currentIndex, paletteHistory } = usePalette();
   const canUndo = currentIndex > 0;
   const canRedo = currentIndex < paletteHistory.length - 1;
 
@@ -97,15 +104,17 @@ const Navbar = ({ mode, setMode }) => {
           {dropdownOpen && (
             <div className="border border-gray relative right-12 top-16 bg-white shadow-lg rounded-md w-40 p-2">
               <ul className="space-y-2">
-                <Link
+                <a
                   onClick={() => {
                     setDropdownOpen(!dropdownOpen);
                   }}
-                  to="/savedpalette"
+                  href="/savedpalette"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-blue-500 cursor-pointer"
                 >
                   Saved Palettes
-                </Link>
+                </a>
                 <li className="hover:text-blue-500 cursor-pointer">Option 2</li>
                 <li className="hover:text-blue-500 cursor-pointer">Option 3</li>
               </ul>
@@ -119,11 +128,14 @@ const Navbar = ({ mode, setMode }) => {
           >
             <IoCamera className="text-2xl text-black hover:text-blue-500" />
           </button>
-          <Link to="/visualizePalette" onClick={() => addToHistoryIfUnique(paletteHistory, colors, savePaletteToHistory)}>
-            <p className="text-base text-black hover:text-blue-500">
-              Palette Visualizer
-            </p>
-          </Link>
+          <a
+            href={`/visualizePalette/${location.pathname.substring(1)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-base text-black hover:text-blue-500"
+          >
+            Palette Visualizer
+          </a>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
               className={`text-2xl ${
