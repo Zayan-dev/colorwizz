@@ -3,24 +3,32 @@ import { useNavigate } from "react-router-dom";
 import { usePalette as useColorThiefPalette } from "color-thief-react";
 import { ColorRing } from 'react-loader-spinner';
 import Modal from 'react-modal';
-import { MdClose, MdAddCircle, MdRemoveCircle , MdLock, MdDelete, MdLockOpen} from "react-icons/md";
+import { MdClose, MdAddCircle, MdRemoveCircle, MdLock, MdDelete, MdLockOpen } from "react-icons/md";
 import { usePalette } from '../../../contextAPI/PaletteHistoryContext';
 import chroma from 'chroma-js';
 import { urlParameters } from '../../utils/reusablefunctions';
 
-const ImagePickerModal = ({ isOpen, onClose }) => {
+const ImagePickerModal = ({ isOpen, onClose, img }) => {
   const navigate = useNavigate();
   // States
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(localStorage.getItem("img")||null);
   const [imageUploading, setImageUploading] = useState(false);
   const [displayedColors, setDisplayedColors] = useState([]);
 
   // Context APIs used only on onclick of next button
   const { savePaletteToHistory } = usePalette();
-
+  const [browse, setBrowse] = useState();
+  const changeBrowse=()=>{
+    setImage(null);
+  }
+  useEffect(() => {
+    localStorage.setItem("img", image);
+    localStorage.setItem("colorpalette", displayedColors);
+  }, [image]);
   // Extracting colors
-  const { data, loading } = useColorThiefPalette(image, 20, "hex");
+  const { data, loading } = useColorThiefPalette(image ,20, "hex");
 
+  // console.log(image)
   // Effect to set displayed colors when `data` is available
   useEffect(() => {
     if (data && data.length > 0) {
@@ -34,6 +42,7 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
   // Setting image
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
+    console.log(file)
     if (file) {
       setImageUploading(true);
       const reader = new FileReader();
@@ -118,9 +127,9 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
         if (updatedColors.length < displayedColors.length) {
           const removedColor = updatedColors.pop(); // Remove the last unlocked color
           setDisplayedColors([
-          ...updatedColors,
-          ...displayedColors.filter(colorObj => colorObj.locked)
-        ]);// Update the displayedColors with removed unlocked color
+            ...updatedColors,
+            ...displayedColors.filter(colorObj => colorObj.locked)
+          ]);// Update the displayedColors with removed unlocked color
         }
       } else {
         // If the last color is not locked, simply remove it
@@ -240,9 +249,8 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
                           style={{ backgroundColor: colorObj.color }}
                         >
                           <div
-                            className={`flex p-1 justify-between w-full ${
-                              luminance > 0.5 ? "text-black" : "text-white"
-                            }`}
+                            className={`flex p-1 justify-between w-full ${luminance > 0.5 ? "text-black" : "text-white"
+                              }`}
                           >
                             <button onClick={() => deleteColor(colorObj.color)}>
                               <MdDelete />
@@ -276,17 +284,22 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
                 >
                   Change Palette
                 </button>
+                <button
+                  onClick={changeBrowse}
+                  className="bg-blue-500 hover:bg-blue-700 transition duration-200 rounded-md text-white text-lg px-4 py-2"
+                >
+                  Browse
+                </button>
                 <div className="flex gap-8">
                   <button
                     disabled={displayedColors.length === 10}
                     onClick={() => addColor(data)}
                   >
                     <MdAddCircle
-                      className={`text-4xl ${
-                        displayedColors.length === 10
-                          ? "text-gray cursor-not-allowed"
-                          : "text-black hover:text-blue-500"
-                      }`}
+                      className={`text-4xl ${displayedColors.length === 10
+                        ? "text-gray cursor-not-allowed"
+                        : "text-black hover:text-blue-500"
+                        }`}
                     />
                   </button>
                   <button
@@ -294,11 +307,10 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
                     onClick={() => removeColor()}
                   >
                     <MdRemoveCircle
-                      className={`text-4xl ${
-                        displayedColors.length === 2
-                          ? "text-gray cursor-not-allowed"
-                          : "text-black hover:text-blue-500"
-                      }`}
+                      className={`text-4xl ${displayedColors.length === 2
+                        ? "text-gray cursor-not-allowed"
+                        : "text-black hover:text-blue-500"
+                        }`}
                     />
                   </button>
                 </div>

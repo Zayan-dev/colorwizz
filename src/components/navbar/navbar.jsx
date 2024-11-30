@@ -77,7 +77,12 @@ const Navbar = ({ mode, setMode }) => {
       }
     }
   };
+  // const [img, setImg] = useState(null);
+  // const setImageInLocalStorage = () => {
+  //   const image = localStorage.getItem("img");
+  //   setImg(image);
 
+  // }
   return (
     <div className="w-full z-20 fixed top-[4.49rem] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 h-[4.5rem] flex justify-between items-center border-t border-gray">
@@ -124,7 +129,10 @@ const Navbar = ({ mode, setMode }) => {
         </div>
         <div className="flex justify-center items-center space-x-6">
           <button
-            onClick={() => setPickerModalOpen(true)}
+            onClick={() => {
+              setPickerModalOpen(true)
+              setImageInLocalStorage();
+            }}
             disabled={isPickerModalOpen}
           >
             <IoCamera className="text-2xl text-black hover:text-blue-500" />
@@ -139,16 +147,14 @@ const Navbar = ({ mode, setMode }) => {
           </a>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
-              className={`text-2xl ${
-                canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
-              }`}
+              className={`text-2xl ${canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
+                }`}
             />
           </button>
           <button onClick={redo} disabled={!canRedo}>
             <IoIosRedo
-              className={`text-2xl ${
-                canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
-              }`}
+              className={`text-2xl ${canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
+                }`}
             />
           </button>
           <button
@@ -174,6 +180,7 @@ const Navbar = ({ mode, setMode }) => {
             <ImagePickerModal
               isOpen={isPickerModalOpen}
               onClose={() => setPickerModalOpen(false)}
+              // img={img}
             />
           )}
         </div>
