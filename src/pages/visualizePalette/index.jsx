@@ -43,7 +43,7 @@ const PaletteVisualizer = () => {
 
   return (
     <div className="bg-slate-100 min-h-fit h-screen pt-24 py-14 px-14 text-center">
-      <div className="w-[1100px] mx-auto rounded-xl overflow-visible mb-8 flex">
+      <div className="w-[1100px] mx-auto rounded-xl overflow-hidden mb-8 flex">
         <button
           onClick={handleShuffle}
           className="w-16 bg-blue-500 hover:bg-blue-700 flex items-center justify-center"
