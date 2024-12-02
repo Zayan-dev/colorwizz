@@ -162,7 +162,7 @@ export const checkPlan = async (req, res) => {
     try {
         // console.log("sdssdf");
         const user = req.user;
-        const plan = "";
+        let plan = "";
         if (user.subscriptionPlan == "free") {
             plan = "free";
             res.status(200).json({ message: "free person", plan: plan });

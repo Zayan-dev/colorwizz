@@ -7,6 +7,8 @@ import { MdClose, MdAddCircle, MdRemoveCircle, MdLock, MdDelete, MdLockOpen } fr
 import { usePalette } from '../../../contextAPI/PaletteHistoryContext';
 import chroma from 'chroma-js';
 import { urlParameters } from '../../utils/reusablefunctions';
+import { compressImage } from '../../utils/imageCompression';
+import { toast } from 'react-toastify';
 
 const ImagePickerModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -22,13 +24,25 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
   }
   // console.log(localStorage.getItem("img"));
   useEffect(() => {
-    localStorage.setItem("img", image);
-    localStorage.setItem("colorpalette", displayedColors);
+    if (image) {
+      // Compress the image before storing it
+      const handleImageCompression = async () => {
+        try {
+          const compressedImage = await compressImage(image);
+          localStorage.setItem("img", compressedImage); // Save compressed image to localStorage
+        } catch (error) {
+          toast.error("Image not saved in storage")
+          // console.error("Error during image compression:", error);
+        }
+      };
+
+      handleImageCompression();
+      localStorage.setItem("colorpalette", displayedColors);
+    }
   }, [image]);
 
   useEffect(() => {
     if (localStorage.getItem("img") !== "null") {
-      console.log("img k andr");
       setImage(localStorage.getItem("img"))
     }
   }, [])
@@ -49,7 +63,6 @@ const ImagePickerModal = ({ isOpen, onClose }) => {
   // Setting image
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    console.log(file)
     if (file) {
       setImageUploading(true);
       const reader = new FileReader();

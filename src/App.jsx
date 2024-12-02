@@ -14,15 +14,16 @@ import PaletteVisualizer from "./pages/visualizePalette/index.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PaletteProvider } from "./contextAPI/PaletteHistoryContext.jsx";
-import axios from "axios";
 import Cookies from "js-cookie";
+import { useSubscriptionPlanContext } from "./contextAPI/SubscriptionPlan.jsx";
 
 const App = () => {
   const [mode, setMode] = useState("monochromatic");
   const location = useLocation();
 
   const [headerKey, setHeaderKey] = useState(0);
-  const [plan, setPlan] = useState("free");
+
+  const { checkUserSubscriptionPlan } = useSubscriptionPlanContext();
 
   const showNavbar =
     location.pathname === "/" ||
@@ -30,28 +31,14 @@ const App = () => {
       !["/savedpalette"].includes(location.pathname) &&
       !location.pathname.startsWith("/visualizePalette"));
 
-
-  const checkUserSubscriptionPlan = async () => {
-    try {
-      const token = Cookies.get("token");
-      const response = await axios.get("http://localhost:5000/api/checkPlan", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        }
-      });
-      setPlan(response.data);
-      console.log(plan);
-    } catch (error) {
-      console.log(error)
-    }
-
-
-  }
   useEffect(() => {
-    checkUserSubscriptionPlan();
+    const token = Cookies.get("token");
+    if (token) {
+      checkUserSubscriptionPlan(token);
+    }
   }, [])
-  // console.log(plan);
+
+
   return (
     <PaletteProvider>
       <div>

@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import Modal from "react-modal";
 import { toast } from 'react-toastify';
 import { MdClose } from 'react-icons/md';
+import { useSubscriptionPlanContext } from '../../contextAPI/SubscriptionPlan';
 
 const Signin = ({ isOpen, onClose, updateHeader }) => {
+  const { checkUserSubscriptionPlan } = useSubscriptionPlanContext();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,14 +35,8 @@ const Signin = ({ isOpen, onClose, updateHeader }) => {
         // Cookies.set('token',response.data.token,{ expires: isRememberMe ? 7 : 1 , secure: true, sameSite: 'strict', path: '/' });
         toast.success("Login successful");
         Cookies.set("token", response.data.token);
-        // console.log(response.data.plan);
-        // if (response.data.token.plan == "free") {
-        //   toast.success("Free wala");
-        // }
-        // else if (response.data.token.plan == "premium") {
-        //   toast.success("premium wala");
-        // }
         updateHeader();
+        checkUserSubscriptionPlan(response.data.token);
         onClose();
       }
     } catch (error) {

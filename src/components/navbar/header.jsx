@@ -5,8 +5,11 @@ import { toast } from "react-toastify";
 import { isLoggedIn } from "../utils/loginOnlyfeature";
 import Signin from "../Signin";
 import Signup from "../Signup";
+import { useSubscriptionPlanContext } from "../../contextAPI/SubscriptionPlan";
 
 const Header = ({setHeaderKey}) => {
+
+  const { setPlan } = useSubscriptionPlanContext();
   // Login and signup modal states
   const [isSigninModalOpen, setSigninModalOpen] = useState(false);
   const [isSignupModalOpen, setSignupModalOpen] = useState(false);
@@ -15,6 +18,7 @@ const Header = ({setHeaderKey}) => {
   const handleLogout = () => {
     if (isLoggedIn()) {
       Cookies.remove("token", { path: "/" });
+      setPlan("free")
       toast.success("Logout Successful");
       updateHeader();
     }

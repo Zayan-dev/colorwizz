@@ -15,9 +15,14 @@ import { usePalette } from "../../contextAPI/PaletteHistoryContext";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import { useSubscriptionPlanContext } from "../../contextAPI/SubscriptionPlan";
 
 const Navbar = ({ mode, setMode }) => {
   // Accessing url colors
+  const { plan } = useSubscriptionPlanContext();
+
+  console.log(plan);
+
   const location = useLocation();
   const colors = location.pathname.startsWith("/")
     ? location.pathname.substring(1).split("-").map((color) => `#${color}`)
