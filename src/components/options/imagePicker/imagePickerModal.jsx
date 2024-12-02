@@ -8,25 +8,32 @@ import { usePalette } from '../../../contextAPI/PaletteHistoryContext';
 import chroma from 'chroma-js';
 import { urlParameters } from '../../utils/reusablefunctions';
 
-const ImagePickerModal = ({ isOpen, onClose, img }) => {
+const ImagePickerModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   // States
-  const [image, setImage] = useState(localStorage.getItem("img")||null);
+  const [image, setImage] = useState(localStorage.getItem("img") == "null" ? null : localStorage.getItem("img"));
   const [imageUploading, setImageUploading] = useState(false);
   const [displayedColors, setDisplayedColors] = useState([]);
 
   // Context APIs used only on onclick of next button
   const { savePaletteToHistory } = usePalette();
-  const [browse, setBrowse] = useState();
-  const changeBrowse=()=>{
+  const changeBrowse = () => {
     setImage(null);
   }
+  // console.log(localStorage.getItem("img"));
   useEffect(() => {
     localStorage.setItem("img", image);
     localStorage.setItem("colorpalette", displayedColors);
   }, [image]);
+
+  useEffect(() => {
+    if (localStorage.getItem("img") !== "null") {
+      console.log("img k andr");
+      setImage(localStorage.getItem("img"))
+    }
+  }, [])
   // Extracting colors
-  const { data, loading } = useColorThiefPalette(image ,20, "hex");
+  const { data, loading } = useColorThiefPalette(image, 20, "hex");
 
   // console.log(image)
   // Effect to set displayed colors when `data` is available
@@ -284,12 +291,19 @@ const ImagePickerModal = ({ isOpen, onClose, img }) => {
                 >
                   Change Palette
                 </button>
-                <button
-                  onClick={changeBrowse}
-                  className="bg-blue-500 hover:bg-blue-700 transition duration-200 rounded-md text-white text-lg px-4 py-2"
-                >
-                  Browse
-                </button>
+                <div className="rounded-lg">
+                  <label className="cursor-pointer text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <div className="bg-blue-500 text-white text-lg hover:bg-blue-700 px-5 py-2 rounded-md hover:bg-champagnePink">
+                      Browse file
+                    </div>
+                  </label>
+                </div>
                 <div className="flex gap-8">
                   <button
                     disabled={displayedColors.length === 10}
