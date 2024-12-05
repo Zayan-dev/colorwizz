@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { toast } from "react-toastify";
@@ -6,8 +6,8 @@ import { isLoggedIn } from "../utils/loginOnlyfeature";
 import Signin from "../Signin";
 import Signup from "../Signup";
 import { useSubscriptionPlanContext } from "../../contextAPI/SubscriptionPlan";
-
-const Header = ({setHeaderKey}) => {
+import logo from "../../assets/images/logo/colorwizz logo-10.png"
+const Header = ({ setHeaderKey }) => {
 
   const { setPlan } = useSubscriptionPlanContext();
   // Login and signup modal states
@@ -29,7 +29,8 @@ const Header = ({setHeaderKey}) => {
         {/* Logo */}
         <Link to="/">
           <div className="text-2xl font-semibold text-blue-500 hover:text-blue-700 transition duration-200">
-            ColorWizz
+            <img src={logo} className="h-12" alt="" srcset="" />
+            {/* ColorWizz */}
           </div>
         </Link>
 
