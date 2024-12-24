@@ -24,7 +24,7 @@ const index = () => {
         try {
             setPalettesLoading(true);
             const token = Cookies.get("token");
-            const response = await axios.get("http://localhost:5000/api/getAllPalettes", {
+            const response = await axios.get(`${import.meta.env.VITE_HOSTURL}/getAllPalettes`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -52,7 +52,7 @@ const index = () => {
         closeModal();
         try {
             const token = Cookies.get("token");
-            const response = await axios.delete("http://localhost:5000/api/savedPaletteDelete", {
+            const response = await axios.delete(`${import.meta.env.VITE_HOSTURL}/savedPaletteDelete`, {
                 data: { index }
                 ,
                 headers: {

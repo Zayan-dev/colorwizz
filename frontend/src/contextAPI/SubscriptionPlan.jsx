@@ -9,7 +9,7 @@ export const SubscriptionPlanProvider = ({ children }) => {
   const [plan, setPlan] = useState("free");
   const checkUserSubscriptionPlan = async (token) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/checkPlan", {
+      const response = await axios.get(`${import.meta.env.VITE_HOSTURL}/checkPlan`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

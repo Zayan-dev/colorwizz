@@ -24,7 +24,7 @@ const Signup = ({ isOpen, onClose, updateHeader, openSignIn }) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/register",
+        `${import.meta.env.VITE_HOSTURL}/register`,
         formData
       );
 

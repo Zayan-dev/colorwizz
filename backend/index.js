@@ -8,10 +8,12 @@ import userRoutes from "./routes/userRoutes.js";
 dotenv.config();
 const app = express()
 
-app.use(cors({
-    origin: 'http://localhost:5173', // Your frontend URL
-    credentials: true, // Allow credentials (cookies) to be sent
-}));
+const whiteList = ["http://localhost:5173", "https://colorwizz.net/"];
+const corsOptions = {
+    credentials: true,
+    origin: whiteList,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

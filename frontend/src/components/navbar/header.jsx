@@ -29,7 +29,7 @@ const Header = ({ setHeaderKey }) => {
         {/* Logo */}
         <Link to="/">
           <div className="text-2xl font-semibold text-blue-500 hover:text-blue-700 transition duration-200">
-            <img src={logo} className="h-12" alt="" srcset="" />
+            <img src={logo} className="h-12" alt="" srcSet="" />
             {/* ColorWizz */}
           </div>
         </Link>

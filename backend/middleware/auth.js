@@ -8,7 +8,7 @@ export const isUserLoggedIn = async (req, res, next) => {
       return res.status(404).json({ message: "Unauthorized User" });
     }
     const decoded = jwt.verify(token, process.env.SECRET);
-    console.log("hi")
+    // console.log("hi")
 
     // Finding the user by ID from the decoded token
     const decodedUser = await User.findById(decoded.uId).exec();

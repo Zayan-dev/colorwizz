@@ -2,9 +2,10 @@ import React, { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
-import { IoCamera } from "react-icons/io5";
-import { CiHeart } from "react-icons/ci";
 import { RxBorderDotted } from "react-icons/rx";
+import { MdSaveAlt } from "react-icons/md";
+import { TbCameraUp } from "react-icons/tb";
+import { FaRegHeart } from "react-icons/fa6";
 
 import ImagePickerModal from "../options/imagePicker/imagePickerModal";
 import { isLoggedIn, loginOnlyFeature } from "../utils/loginOnlyfeature";
@@ -21,7 +22,7 @@ const Navbar = ({ mode, setMode }) => {
   // Accessing url colors
   const { plan } = useSubscriptionPlanContext();
 
-  console.log(plan);
+  // console.log(plan);
 
   const location = useLocation();
   const colors = location.pathname.startsWith("/")
@@ -60,7 +61,7 @@ const Navbar = ({ mode, setMode }) => {
       const token = Cookies.get("token");
       // console.log(token.plan);
       const response = await axios.post(
-        "http://localhost:5000/api/savePalette",
+        `${import.meta.env.VITE_HOSTURL}/savePalette`,
         { colors },
         {
           headers: {
@@ -106,7 +107,7 @@ const Navbar = ({ mode, setMode }) => {
           <p className="text-base m-5 text-stone-800">
             Hit spacebar to generate colors palette
           </p>
-          {isLoggedIn() && (
+          {/* {isLoggedIn() && (
             <RxBorderDotted
               className="ml-8 text-3xl font-bold cursor-pointer hover:text-blue-500"
               onClick={toggleDropdown}
@@ -130,16 +131,26 @@ const Navbar = ({ mode, setMode }) => {
                 <li className="hover:text-blue-500 cursor-pointer">Option 3</li>
               </ul>
             </div>
-          )}
+          )} */}
         </div>
         <div className="flex justify-center items-center space-x-6">
+          {isLoggedIn() && (
+            <div className="relative group">
+              <a href="/savedpalette" target="_blank" rel="noopener noreferrer">
+                <MdSaveAlt className="text-2xl font-bold cursor-pointer hover:text-blue-500" />
+              </a>
+              <div className="absolute -bottom-10  transform -translate-x-1/2  text-center  min-w-28 bg-slate-200 text-black text-sm rounded-md px-2 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Saved Palettes
+              </div>
+            </div>
+          )}
           <button
             onClick={() => {
-              setPickerModalOpen(true)
+              setPickerModalOpen(true);
             }}
             disabled={isPickerModalOpen}
           >
-            <IoCamera className="text-2xl text-black hover:text-blue-500" />
+            <TbCameraUp className="text-2xl text-black hover:text-blue-500" />
           </button>
           <a
             href={`/visualizePalette/${location.pathname.substring(1)}`}
@@ -151,30 +162,32 @@ const Navbar = ({ mode, setMode }) => {
           </a>
           <button onClick={undo} disabled={!canUndo}>
             <IoIosUndo
-              className={`text-2xl ${canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
-                }`}
+              className={`text-2xl ${
+                canUndo ? "text-black hover:text-blue-500" : "text-darkGray"
+              }`}
             />
           </button>
           <button onClick={redo} disabled={!canRedo}>
             <IoIosRedo
-              className={`text-2xl ${canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
-                }`}
+              className={`text-2xl ${
+                canRedo ? "text-black hover:text-blue-500" : "text-darkGray"
+              }`}
             />
-          </button>
-          <button
-            onClick={handlePaletteDownload}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Download
           </button>
           <div>
             <button
               onClick={handleSavePalette}
               className="flex justify-center items-center p-1 gap-1 text-center hover:text-blue-500 transition duration-200"
             >
-              <p>Save</p> <CiHeart className="text-2xl" />
+              <p>Save</p> <FaRegHeart className="text-xl" />
             </button>
           </div>
+          <button
+            onClick={handlePaletteDownload}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            Download
+          </button>
 
           {/* Export colors */}
           <canvas ref={canvasRef} style={{ display: "none" }} />
