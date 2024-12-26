@@ -21,6 +21,9 @@ app.use(cookieParser());
 connectDB();
 
 //user Routes
+app.get("/check-me", (_, res) => {
+    res.json({message: "Hello world"})
+})
 app.use("/api", userRoutes);
 
 const port = process.env.PORT || 5000;
